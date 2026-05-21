@@ -3,70 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rota Brasil</title>
+<title>Passageiro - Rota Brasil</title>
+
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
 
 body{
-background:
-linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),
-url('assets/fundo.jpg');
-background-size:cover;
-background-position:center;
+margin:0;
+font-family:Arial;
+background:#0f172a;
 color:white;
 }
 
 header{
 padding:20px;
-display:flex;
-justify-content:space-between;
-align-items:center;
 background:#111827;
-}
-
-.logo{
-font-size:28px;
+text-align:center;
+font-size:22px;
 font-weight:bold;
 }
 
 .container{
-width:100%;
-min-height:90vh;
-display:flex;
-align-items:center;
-justify-content:center;
+max-width:500px;
+margin:auto;
 padding:20px;
 }
 
 .card{
-width:100%;
-max-width:450px;
-background:rgba(31,41,55,0.9);
-padding:30px;
-border-radius:20px;
-backdrop-filter:blur(10px);
-}
-
-h1{
-text-align:center;
-margin-bottom:25px;
+background:#1f2937;
+padding:20px;
+border-radius:15px;
+margin-bottom:15px;
 }
 
 input{
 width:100%;
 padding:15px;
-margin-bottom:15px;
+margin-bottom:10px;
 border:none;
-border-radius:12px;
-background:#374151;
+border-radius:10px;
+background:#111827;
 color:white;
+outline:none;
 }
 
 button{
@@ -74,56 +53,66 @@ width:100%;
 padding:15px;
 border:none;
 border-radius:12px;
-background:#10b981;
-color:white;
 font-weight:bold;
 cursor:pointer;
-margin-bottom:10px;
-}
-
-.register{
-background:#2563eb;
-}
-
-.cancel{
-background:#ef4444;
-}
-
-.dashboard{
-display:none;
-}
-
-.motorista{
-background:#374151;
-padding:15px;
-border-radius:12px;
 margin-top:10px;
+transition:0.2s;
+}
+
+.primary{
+background:#2563eb;
+color:white;
+}
+
+.success{
+background:#10b981;
+color:white;
+}
+
+.danger{
+background:#ef4444;
+color:white;
+}
+
+button:hover{
+transform:scale(1.02);
+}
+
+.card h3{
+margin-top:0;
 }
 
 .status{
 text-align:center;
-margin-top:15px;
+margin-top:10px;
 font-weight:bold;
 }
 
-.mapa{
-width:100%;
-height:250px;
-background:#1f2937;
-border-radius:15px;
-margin-top:20px;
-display:flex;
-align-items:center;
-justify-content:center;
+.motorista{
+background:#111827;
+padding:12px;
+border-radius:12px;
+margin-top:10px;
+border:1px solid #374151;
+}
+
+.badge{
+display:inline-block;
+padding:5px 10px;
+background:#22c55e;
+border-radius:10px;
+font-size:12px;
+margin-bottom:10px;
 }
 
 </style>
 
 </head>
+
 <body>
 
 <header>
-<div class="logo">🚗 Rota Brasil</div>
+🚗 Rota Brasil Passageiro
 </header>
 
 <div class="container">
@@ -131,35 +120,48 @@ justify-content:center;
 <!-- LOGIN -->
 <div class="card" id="loginCard">
 
-<h1>Passageiro</h1>
+<h3>Login / Cadastro</h3>
 
-<input type="text" id="nome" placeholder="Seu nome">
-<input type="email" id="email" placeholder="Seu email">
-<input type="text" id="telefone" placeholder="Telefone">
-<input type="password" id="senha" placeholder="Senha">
+<input id="nome" placeholder="Nome">
+<input id="email" placeholder="Email">
+<input id="senha" placeholder="Senha">
+<input id="telefone" placeholder="Telefone">
 
-<button onclick="login()">Entrar</button>
-<button class="register" onclick="register()">Criar Conta</button>
+<button class="primary" onclick="register()">
+Criar conta
+</button>
 
-<p class="status" id="loginStatus"></p>
+<button class="success" onclick="login()">
+Entrar
+</button>
+
+<p id="loginStatus" class="status"></p>
 
 </div>
 
 <!-- DASHBOARD -->
-<div class="card dashboard" id="dashboard">
+<div class="card" id="dashboard" style="display:none">
 
-<h1>Chamar Corrida</h1>
+<h3>Chamar corrida</h3>
 
 <input id="origem" placeholder="Origem">
 <input id="destino" placeholder="Destino">
 
-<button onclick="buscarMotoristas()">Procurar Motoristas</button>
-<button onclick="chamarCorrida()">Chamar Corrida</button>
-<button class="cancel" onclick="cancelarCorrida()">Cancelar Corrida</button>
+<button class="primary" onclick="chamarCorrida()">
+Procurar motorista
+</button>
 
-<div id="motoristasArea">Nenhum motorista online</div>
+<button class="danger" onclick="cancelarCorrida()">
+Cancelar corrida
+</button>
 
-<div class="mapa">MAPA TEMPO REAL</div>
+<hr>
+
+<div class="badge">Motoristas online</div>
+
+<div id="motoristasArea">
+Nenhum motorista disponível
+</div>
 
 <p class="status" id="corridaStatus"></p>
 
@@ -171,53 +173,48 @@ justify-content:center;
 
 const API = "https://rotabrasil-v1cf.onrender.com";
 const socket = io(API);
+
 let user = null;
 let corridaId = null;
 
 // REGISTER
 async function register(){
 
-const nome = document.getElementById("nome").value;
-const email = document.getElementById("email").value;
-const telefone = document.getElementById("telefone").value;
-const senha = document.getElementById("senha").value;
-const status = document.getElementById("loginStatus");
-
-try{
-
-const response = await fetch(API+"/register",{
+await fetch(API+"/register",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({nome,email,telefone,senha,tipo:"passageiro"})
+body:JSON.stringify({
+nome:document.getElementById("nome").value,
+email:document.getElementById("email").value,
+senha:document.getElementById("senha").value,
+telefone:document.getElementById("telefone").value,
+tipo:"passageiro"
+})
 });
 
-const data = await response.json();
-status.innerHTML = "Conta criada com sucesso";
-
-}catch(e){
-status.innerHTML = "Erro cadastro";
-}
+document.getElementById("loginStatus").innerText =
+"Conta criada ✔";
 }
 
 // LOGIN
 async function login(){
 
-const email = document.getElementById("email").value;
-const senha = document.getElementById("senha").value;
-const status = document.getElementById("loginStatus");
-
-try{
-
-const response = await fetch(API+"/login",{
+const res = await fetch(API+"/login",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email,senha})
+body:JSON.stringify({
+email:email.value,
+senha:senha.value
+})
 });
 
-const data = await response.json();
+const data = await res.json();
 
 if(data.token){
+
 user = data.user;
+
+localStorage.setItem("token",data.token);
 localStorage.setItem("user",JSON.stringify(user));
 
 document.getElementById("loginCard").style.display="none";
@@ -226,24 +223,19 @@ document.getElementById("dashboard").style.display="block";
 buscarMotoristas();
 
 }else{
-status.innerHTML = data.erro;
-}
-
-}catch(e){
-status.innerHTML="Erro servidor";
+alert("erro login");
 }
 }
 
 // MOTORISTAS
 async function buscarMotoristas(){
 
-const area = document.getElementById("motoristasArea");
-area.innerHTML="Buscando...";
-
 const res = await fetch(API+"/motoristas_online");
 const data = await res.json();
 
-area.innerHTML="";
+const area = document.getElementById("motoristasArea");
+
+area.innerHTML = "";
 
 if(data.length===0){
 area.innerHTML="Nenhum motorista online";
@@ -251,57 +243,61 @@ return;
 }
 
 data.forEach(m=>{
-area.innerHTML+=`<div class='motorista'>🚗 ${m.nome}<br>${m.carro||''}</div>`;
+area.innerHTML += `
+<div class="motorista">
+🚗 ${m.nome}<br>
+${m.carro || ""}
+</div>`;
 });
+
 }
 
-// CHAMAR CORRIDA
+// CRIAR CORRIDA
 async function chamarCorrida(){
-
-const origem = document.getElementById("origem").value;
-const destino = document.getElementById("destino").value;
-const status = document.getElementById("corridaStatus");
-
-try{
 
 const res = await fetch(API+"/nova_corrida",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({passageiro_id:user.id,origem,destino,valor:25})
+body:JSON.stringify({
+passageiro_id:user.id,
+origem:origem.value,
+destino:destino.value,
+valor:25
+})
 });
 
 const data = await res.json();
 
-corridaId = data.corrida_id || null;
+corridaId = data.corrida_id;
 
-status.innerHTML="🚗 Procurando motorista...";
-
-}catch(e){
-status.innerHTML="Erro ao chamar corrida";
-}
+document.getElementById("corridaStatus").innerText =
+"🚗 Procurando motorista...";
 }
 
-// CANCELAR CORRIDA
+// CANCELAR
 async function cancelarCorrida(){
 
-if(!corridaId){
-alert("Nenhuma corrida ativa");
-return;
-}
+if(!corridaId) return;
 
-await fetch(API+"/cancelar_corrida/"+corridaId,{method:"POST"});
+await fetch(API+"/cancelar_corrida/"+corridaId,{
+method:"POST"
+});
 
-document.getElementById("corridaStatus").innerHTML="❌ Corrida cancelada";
-corridaId=null;
+document.getElementById("corridaStatus").innerText =
+"❌ Corrida cancelada";
+
+corridaId = null;
 }
 
 // SOCKET
 socket.on("corrida_aceita",(data)=>{
 
-corridaId = data.corrida_id;
+if(data.corrida_id == corridaId){
 
-document.getElementById("corridaStatus").innerHTML=
-"🚗 " + (data.motorista_nome || "Motorista") + " aceitou sua corrida";
+document.getElementById("corridaStatus").innerText =
+"🚗 Motorista: " + data.motorista_nome + " aceitou sua corrida";
+
+}
 
 });
 
