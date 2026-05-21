@@ -7,7 +7,6 @@
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <style>
-
 *{
 margin:0;
 padding:0;
@@ -86,6 +85,10 @@ margin-bottom:10px;
 background:#2563eb;
 }
 
+.cancel{
+background:#ef4444;
+}
+
 .dashboard{
 display:none;
 }
@@ -100,6 +103,7 @@ margin-top:10px;
 .status{
 text-align:center;
 margin-top:15px;
+font-weight:bold;
 }
 
 .mapa{
@@ -150,10 +154,10 @@ justify-content:center;
 <input id="destino" placeholder="Destino">
 
 <button onclick="buscarMotoristas()">Procurar Motoristas</button>
+<button onclick="chamarCorrida()">Chamar Corrida</button>
+<button class="cancel" onclick="cancelarCorrida()">Cancelar Corrida</button>
 
 <div id="motoristasArea">Nenhum motorista online</div>
-
-<button onclick="chamarCorrida()">Chamar Corrida</button>
 
 <div class="mapa">MAPA TEMPO REAL</div>
 
@@ -168,6 +172,7 @@ justify-content:center;
 const API = "https://rotabrasil-v1cf.onrender.com";
 const socket = io(API);
 let user = null;
+let corridaId = null;
 
 // REGISTER
 async function register(){
@@ -180,19 +185,16 @@ const status = document.getElementById("loginStatus");
 
 try{
 
-const response = await fetch(API + "/register",{
+const response = await fetch(API+"/register",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({nome,email,telefone,senha,tipo:"passageiro"})
 });
 
 const data = await response.json();
-console.log(data);
-
 status.innerHTML = "Conta criada com sucesso";
 
-}catch(error){
-console.log(error);
+}catch(e){
 status.innerHTML = "Erro cadastro";
 }
 }
@@ -206,21 +208,17 @@ const status = document.getElementById("loginStatus");
 
 try{
 
-const response = await fetch(API + "/login",{
+const response = await fetch(API+"/login",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({email,senha})
 });
 
 const data = await response.json();
-console.log(data);
 
 if(data.token){
-
 user = data.user;
-
-localStorage.setItem("token",data.token);
-localStorage.setItem("user",JSON.stringify(data.user));
+localStorage.setItem("user",JSON.stringify(user));
 
 document.getElementById("loginCard").style.display="none";
 document.getElementById("dashboard").style.display="block";
@@ -228,12 +226,11 @@ document.getElementById("dashboard").style.display="block";
 buscarMotoristas();
 
 }else{
-status.innerHTML = data.erro || "Erro login";
+status.innerHTML = data.erro;
 }
 
-}catch(error){
-console.log(error);
-status.innerHTML = "Erro servidor";
+}catch(e){
+status.innerHTML="Erro servidor";
 }
 }
 
@@ -241,31 +238,24 @@ status.innerHTML = "Erro servidor";
 async function buscarMotoristas(){
 
 const area = document.getElementById("motoristasArea");
-area.innerHTML = "Buscando motoristas...";
+area.innerHTML="Buscando...";
 
-try{
+const res = await fetch(API+"/motoristas_online");
+const data = await res.json();
 
-const response = await fetch(API + "/motoristas_online");
-const data = await response.json();
+area.innerHTML="";
 
-area.innerHTML = "";
-
-if(data.length === 0){
-area.innerHTML = "Nenhum motorista online";
+if(data.length===0){
+area.innerHTML="Nenhum motorista online";
 return;
 }
 
 data.forEach(m=>{
-area.innerHTML += `<div class="motorista">🚗 ${m.nome}<br>${m.carro || ''}</div>`;
+area.innerHTML+=`<div class='motorista'>🚗 ${m.nome}<br>${m.carro||''}</div>`;
 });
-
-}catch(e){
-console.log(e);
-area.innerHTML="Erro ao buscar motoristas";
-}
 }
 
-// CORRIDA
+// CHAMAR CORRIDA
 async function chamarCorrida(){
 
 const origem = document.getElementById("origem").value;
@@ -274,28 +264,44 @@ const status = document.getElementById("corridaStatus");
 
 try{
 
-const response = await fetch(API + "/nova_corrida",{
+const res = await fetch(API+"/nova_corrida",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({passageiro_id:user.id,origem,destino,valor:25})
 });
 
-const data = await response.json();
-console.log(data);
+const data = await res.json();
 
-status.innerHTML="Corrida chamada com sucesso 🚗";
+corridaId = data.corrida_id || null;
+
+status.innerHTML="🚗 Procurando motorista...";
 
 }catch(e){
-console.log(e);
 status.innerHTML="Erro ao chamar corrida";
 }
+}
+
+// CANCELAR CORRIDA
+async function cancelarCorrida(){
+
+if(!corridaId){
+alert("Nenhuma corrida ativa");
+return;
+}
+
+await fetch(API+"/cancelar_corrida/"+corridaId,{method:"POST"});
+
+document.getElementById("corridaStatus").innerHTML="❌ Corrida cancelada";
+corridaId=null;
 }
 
 // SOCKET
 socket.on("corrida_aceita",(data)=>{
 
+corridaId = data.corrida_id;
+
 document.getElementById("corridaStatus").innerHTML=
-"Motorista aceitou sua corrida 🚗";
+"🚗 " + (data.motorista_nome || "Motorista") + " aceitou sua corrida";
 
 });
 
