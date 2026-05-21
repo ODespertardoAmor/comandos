@@ -1,273 +1,239 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Luna Mobile</title>
 
-<style>
-body {
-    margin: 0;
-    background: #0f172a;
-    font-family: Arial, sans-serif;
-    color: white;
-    display: flex;
-    justify-content: center;
-}
+    <meta charset="UTF-8">
 
-#app {
-    width: 100%;
-    max-width: 420px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: #020617;
-}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-header {
-    text-align: center;
-    padding: 12px;
-}
+    <title>Passageiro</title>
 
-#avatar {
-    width: 120px;
-    height: 120px;
-    margin: 10px auto;
-    border-radius: 50%;
-    overflow: hidden;
-    box-shadow: 0 0 15px rgba(167,139,250,0.5);
-    transition: box-shadow 0.3s ease;
-}
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-#avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+    <style>
 
-#messages {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-}
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, Helvetica, sans-serif;
+        }
 
-.msg {
-    margin: 6px 0;
-    font-size: 14px;
-}
-.user { color: #38bdf8; }
-.luna { color: #a78bfa; }
+        body{
 
-#controls {
-    display: flex;
-    gap: 6px;
-    padding: 10px;
-}
+            background-image:
 
-input {
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    font-size: 14px;
-}
+            linear-gradient(
+                rgba(0,0,0,0.7),
+                rgba(0,0,0,0.7)
+            ),
 
-button {
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-}
-img.msg-img {
-    max-width: 150px;
-    border-radius: 8px;
-    margin-top: 4px;
-    display: block;
-}
-</style>
+            url("assets/fundo.jpg");
+
+            background-size:cover;
+
+            background-position:center;
+
+            background-repeat:no-repeat;
+
+            background-attachment:fixed;
+
+            color:white;
+        }
+
+        .container{
+            width:100%;
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+        }
+
+        .card{
+
+            width:100%;
+            max-width:400px;
+
+            background:rgba(31,41,55,0.88);
+
+            backdrop-filter:blur(10px);
+
+            padding:30px;
+
+            border-radius:20px;
+
+            box-shadow:0 0 25px rgba(0,0,0,0.6);
+        }
+
+        .logo{
+            width:120px;
+            display:block;
+            margin:0 auto 20px;
+        }
+
+        h1{
+            text-align:center;
+            margin-bottom:25px;
+        }
+
+        input{
+            width:100%;
+            padding:15px;
+            margin-bottom:15px;
+            border:none;
+            border-radius:10px;
+            background:#374151;
+            color:white;
+            font-size:16px;
+        }
+
+        input::placeholder{
+            color:#d1d5db;
+        }
+
+        button{
+            width:100%;
+            padding:15px;
+            border:none;
+            border-radius:10px;
+            background:#10b981;
+            color:white;
+            font-size:16px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        button:hover{
+            opacity:0.9;
+            transform:scale(1.02);
+        }
+
+        .status{
+            text-align:center;
+            margin-top:20px;
+            color:#d1d5db;
+        }
+
+    </style>
+
 </head>
 
 <body>
 
-<div id="app">
+    <div class="container">
 
-<header>
-    <h3>🌙 Luna</h3>
-    <div id="avatar">
-        <img id="avatarImg" src="1771555838106.png" alt="Luna">
+        <div class="card">
+
+            <img
+                src="assets/logo.png"
+                class="logo"
+            >
+
+            <h1>Passageiro</h1>
+
+            <input
+                type="text"
+                id="origem"
+                placeholder="Origem"
+            >
+
+            <input
+                type="text"
+                id="destino"
+                placeholder="Destino"
+            >
+
+            <button onclick="chamarCorrida()">
+                Chamar Corrida
+            </button>
+
+            <p
+                class="status"
+                id="status"
+            ></p>
+
+        </div>
+
     </div>
-</header>
 
-<div id="messages"></div>
+    <script>
 
-<div id="controls">
-    <input id="texto" placeholder="Digite ou fale">
-    <button onclick="enviar()">➤</button>
-    <button onclick="ouvir()">🎤</button>
-</div>
+        const API =
+        "https://rotabrasil-v1cf.onrender.com"
 
-</div>
+        const socket = io(API)
 
-<script>
-const API = "https://comandos-mmmu.onrender.com/chat";
+        // =====================================
+        // CHAMAR CORRIDA
+        // =====================================
 
-const AVATAR_IDLE = "1771554426131.png";
-const AVATAR_ACTIVE = "1771554415763.png";
+        async function chamarCorrida(){
 
-// Lista de imagens na raiz
-const imagens = {
-    "gato": "gato.png",
-    "cachorro": "cachorro.png",
-    "lua": "lua.jpeg"
-};
+            const origem =
+            document.getElementById(
+                "origem"
+            ).value
 
-// =========================
-// FILTRO DE EMOJI (GLOBAL)
-// =========================
-function removerEmojis(texto) {
-    return texto.replace(
-        /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
-        ""
-    ).trim();
-}
+            const destino =
+            document.getElementById(
+                "destino"
+            ).value
 
-// =========================
-// ENVIO DE TEXTO
-// =========================
-function enviar(textoManual = null) {
-    const input = document.getElementById("texto");
-    let textoOriginal = textoManual || input.value.trim();
-    if (!textoOriginal) return;
+            const status =
+            document.getElementById(
+                "status"
+            )
 
-    // Mostra o texto original (com emoji) no chat
-    add("Você", textoOriginal, "user");
+            try{
 
-    // Remove emoji ANTES de ir para API
-    const textoLimpo = removerEmojis(textoOriginal);
+                const response = await fetch(
 
-    setAvatar(true);
+                    API + "/nova_corrida",
 
-    fetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ texto: textoLimpo })
-    })
-    .then(res => res.json())
-    .then(data => {
-        const resposta =
-            data.resposta ||
-            data.response ||
-            data.msg ||
-            "🌙 Recebi, mas não sei responder agora.";
+                    {
 
-        // Mostra resposta com possível imagem
-        add("Luna", resposta, "luna");
+                        method:"POST",
 
-        // Fala SEM emoji
-        falar(resposta);
-    })
-    .catch(() => {
-        add("Luna", "Erro de conexão 😢", "luna");
-        setAvatar(false);
-    });
+                        headers:{
+                            "Content-Type":
+                            "application/json"
+                        },
 
-    input.value = "";
-}
+                        body: JSON.stringify({
 
-// =========================
-// MICROFONE
-// =========================
-function ouvir() {
-    if (!("webkitSpeechRecognition" in window)) {
-        alert("Microfone não suportado");
-        return;
-    }
+                            passageiro_id:1,
 
-    const rec = new webkitSpeechRecognition();
-    rec.lang = "pt-BR";
+                            origem,
 
-    setAvatar(true);
-    rec.start();
+                            destino,
 
-    rec.onresult = e => {
-        const textoFalado = e.results[0][0].transcript;
-        enviar(textoFalado);
-    };
+                            valor:25
+                        })
+                    }
+                )
 
-    rec.onerror = () => {
-        setAvatar(false);
-        add("Sistema", "Erro ao ouvir 😢", "luna");
-    };
-}
+                const data =
+                await response.json()
 
-// =========================
-// VOZ DA LUNA (SEM EMOJI)
-// =========================
-function falar(texto) {
-    if (!("speechSynthesis" in window)) {
-        setAvatar(false);
-        return;
-    }
+                console.log(data)
 
-    const textoLimpo = removerEmojis(texto);
-    if (!textoLimpo) {
-        setAvatar(false);
-        return;
-    }
+                status.innerHTML =
+                "Corrida chamada com sucesso"
 
-    const voz = new SpeechSynthesisUtterance(textoLimpo);
-    voz.lang = "pt-BR";
+            }catch(error){
 
-    voz.onstart = () => setAvatar(true);
-    voz.onend = () => setAvatar(false);
+                console.log(error)
 
-    speechSynthesis.speak(voz);
-}
-
-// =========================
-// AVATAR (ESTADOS)
-// =========================
-function setAvatar(ativo) {
-    const avatar = document.getElementById("avatar");
-    const img = document.getElementById("avatarImg");
-
-    if (ativo) {
-        img.src = AVATAR_ACTIVE;
-        avatar.style.boxShadow = "0 0 35px #a78bfa";
-    } else {
-        img.src = AVATAR_IDLE;
-        avatar.style.boxShadow = "0 0 15px rgba(167,139,250,0.5)";
-    }
-}
-
-// =========================
-// UI + IMAGENS
-// =========================
-function add(nome, texto, cls) {
-    const div = document.createElement("div");
-    div.className = "msg " + cls;
-
-    // Verifica palavras-chave de imagens
-    let encontrouImagem = false;
-    for (const key in imagens) {
-        if (texto.toLowerCase().includes(key)) {
-            div.innerHTML = `<b>${nome}:</b> ${texto}<br><img class="msg-img" src="${imagens[key]}">`;
-            encontrouImagem = true;
-            break;
+                status.innerHTML =
+                "Erro ao chamar corrida"
+            }
         }
-    }
 
-    if (!encontrouImagem) {
-        div.innerHTML = `<b>${nome}:</b> ${texto}`;
-    }
-
-    const msg = document.getElementById("messages");
-    msg.appendChild(div);
-    msg.scrollTop = msg.scrollHeight;
-}
-</script>
+    </script>
 
 </body>
-</html>
 
+</html>
