@@ -290,12 +290,44 @@ corridaId = null;
 }
 
 // SOCKET
+  
 socket.on("corrida_aceita",(data)=>{
 
 if(data.corrida_id == corridaId){
 
-document.getElementById("corridaStatus").innerText =
-"🚗 Motorista: " + data.motorista_nome + " aceitou sua corrida";
+document.getElementById("corridaStatus").innerHTML = `
+
+<div style="
+background:#111827;
+padding:15px;
+border-radius:12px;
+margin-top:15px;
+">
+
+<img
+src="${data.foto}"
+style="
+width:80px;
+height:80px;
+border-radius:50%;
+object-fit:cover;
+margin-bottom:10px;
+"
+>
+
+<h3>${data.motorista_nome}</h3>
+
+<p>🚗 ${data.carro}</p>
+
+<p>📍 Placa: ${data.placa}</p>
+
+<p style="color:#22c55e;">
+Motorista aceitou sua corrida
+</p>
+
+</div>
+
+`;
 
 }
 
