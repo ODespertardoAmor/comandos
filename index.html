@@ -119,151 +119,43 @@ justify-content:center;
 <body>
 
 <header>
-<div class="logo">
-🚗 Rota Brasil
-</div>
+<div class="logo">🚗 Rota Brasil</div>
 </header>
 
 <div class="container">
 
 <!-- LOGIN -->
-
 <div class="card" id="loginCard">
 
 <h1>Passageiro</h1>
 
-<input
-type="text"
-id="nome"
-placeholder="Seu nome"
->
+<input type="text" id="nome" placeholder="Seu nome">
+<input type="email" id="email" placeholder="Seu email">
+<input type="text" id="telefone" placeholder="Telefone">
+<input type="password" id="senha" placeholder="Senha">
 
-<input
-type="email"
-id="email"
-placeholder="Seu email"
->
+<button onclick="login()">Entrar</button>
+<button class="register" onclick="register()">Criar Conta</button>
 
-<input
-type="text"
-id="telefone"
-placeholder="Telefone"
->
+<p class="status" id="loginStatus"></p>
 
-<input
-type="password"
-id="senha"
-placeholder="Senha"
->
-<button onclick="login()">
-Entrar
-</button>
-async function register(){
-
-    const nome =
-    document.getElementById(
-        "nome"
-    ).value
-
-    const email =
-    document.getElementById(
-        "email"
-    ).value
-
-    const telefone =
-    document.getElementById(
-        "telefone"
-    ).value
-
-    const senha =
-    document.getElementById(
-        "senha"
-    ).value
-
-    const status =
-    document.getElementById(
-        "loginStatus"
-    )
-
-    try{
-
-        const response = await fetch(
-
-            API + "/register",
-
-            {
-
-                method:"POST",
-
-                headers:{
-                    "Content-Type":
-                    "application/json"
-                },
-
-                body: JSON.stringify({
-
-                    nome,
-                    email,
-                    telefone,
-                    senha,
-                    tipo:"passageiro"
-                })
-            }
-        )
-
-        const data =
-        await response.json()
-
-        console.log(data)
-
-        status.innerHTML =
-        "Conta criada com sucesso"
-
-    }catch(error){
-
-        console.log(error)
-
-        status.innerHTML =
-        "Erro cadastro"
-    }
-}
-
-
-
-  
-
+</div>
 
 <!-- DASHBOARD -->
-
 <div class="card dashboard" id="dashboard">
 
 <h1>Chamar Corrida</h1>
 
-<input
-id="origem"
-placeholder="Origem"
->
+<input id="origem" placeholder="Origem">
+<input id="destino" placeholder="Destino">
 
-<input
-id="destino"
-placeholder="Destino"
->
+<button onclick="buscarMotoristas()">Procurar Motoristas</button>
 
-<button onclick="buscarMotoristas()">
-Procurar Motoristas
-</button>
+<div id="motoristasArea">Nenhum motorista online</div>
 
-<div id="motoristasArea">
-Nenhum motorista online
-</div>
+<button onclick="chamarCorrida()">Chamar Corrida</button>
 
-<button onclick="chamarCorrida()">
-Chamar Corrida
-</button>
-
-<div class="mapa">
-MAPA TEMPO REAL
-</div>
+<div class="mapa">MAPA TEMPO REAL</div>
 
 <p class="status" id="corridaStatus"></p>
 
@@ -273,254 +165,139 @@ MAPA TEMPO REAL
 
 <script>
 
-const API =
-"https://rotabrasil-v1cf.onrender.com"
-
-const socket = io(API)
-
-let user = null
+const API = "https://rotabrasil-v1cf.onrender.com";
+const socket = io(API);
+let user = null;
 
 // REGISTER
-
 async function register(){
 
-const email =
-document.getElementById("email").value
-
-const senha =
-document.getElementById("senha").value
-
-const status =
-document.getElementById("loginStatus")
+const nome = document.getElementById("nome").value;
+const email = document.getElementById("email").value;
+const telefone = document.getElementById("telefone").value;
+const senha = document.getElementById("senha").value;
+const status = document.getElementById("loginStatus");
 
 try{
 
-const response = await fetch(
-
-API + "/register",
-
-{
+const response = await fetch(API + "/register",{
 method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-nome:"Passageiro",
-email,
-senha,
-telefone:"99999",
-tipo:"passageiro"
-})
-}
-)
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({nome,email,telefone,senha,tipo:"passageiro"})
+});
 
-const text = await response.text()
+const data = await response.json();
+console.log(data);
 
-console.log(text)
-
-status.innerHTML =
-"Conta criada com sucesso"
+status.innerHTML = "Conta criada com sucesso";
 
 }catch(error){
-
-console.log(error)
-
-status.innerHTML =
-"Erro cadastro"
+console.log(error);
+status.innerHTML = "Erro cadastro";
 }
 }
 
 // LOGIN
-
 async function login(){
 
-const email =
-document.getElementById("email").value
-
-const senha =
-document.getElementById("senha").value
-
-const status =
-document.getElementById("loginStatus")
+const email = document.getElementById("email").value;
+const senha = document.getElementById("senha").value;
+const status = document.getElementById("loginStatus");
 
 try{
 
-const response = await fetch(
-
-API + "/login",
-
-{
+const response = await fetch(API + "/login",{
 method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email,
-senha
-})
-}
-)
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email,senha})
+});
 
-const data = await response.json()
-
-console.log(data)
+const data = await response.json();
+console.log(data);
 
 if(data.token){
 
-user = data.user
+user = data.user;
 
-localStorage.setItem(
-"token",
-data.token
-)
+localStorage.setItem("token",data.token);
+localStorage.setItem("user",JSON.stringify(data.user));
 
-localStorage.setItem(
-"user",
-JSON.stringify(data.user)
-)
+document.getElementById("loginCard").style.display="none";
+document.getElementById("dashboard").style.display="block";
 
-document.getElementById(
-"loginCard"
-).style.display = "none"
-
-document.getElementById(
-"dashboard"
-).style.display = "block"
-
-buscarMotoristas()
+buscarMotoristas();
 
 }else{
-
-status.innerHTML =
-data.erro || "Erro login"
+status.innerHTML = data.erro || "Erro login";
 }
 
 }catch(error){
-
-console.log(error)
-
-status.innerHTML =
-"Erro servidor"
+console.log(error);
+status.innerHTML = "Erro servidor";
 }
 }
 
-// MOTORISTAS ONLINE
-
+// MOTORISTAS
 async function buscarMotoristas(){
 
-const area =
-document.getElementById(
-"motoristasArea"
-)
-
-area.innerHTML =
-"Buscando motoristas..."
+const area = document.getElementById("motoristasArea");
+area.innerHTML = "Buscando motoristas...";
 
 try{
 
-const response = await fetch(
-API + "/motoristas_online"
-)
+const response = await fetch(API + "/motoristas_online");
+const data = await response.json();
 
-const data = await response.json()
-
-console.log(data)
-
-area.innerHTML = ""
+area.innerHTML = "";
 
 if(data.length === 0){
-
-area.innerHTML =
-"Nenhum motorista online"
-
-return
+area.innerHTML = "Nenhum motorista online";
+return;
 }
 
-data.forEach((motorista)=>{
+data.forEach(m=>{
+area.innerHTML += `<div class="motorista">🚗 ${m.nome}<br>${m.carro || ''}</div>`;
+});
 
-area.innerHTML += `
-
-<div class="motorista">
-🚗 ${motorista.nome}<br>
-Carro: ${motorista.carro || 'Não informado'}
-</div>
-`
-})
-
-}catch(error){
-
-console.log(error)
-
-area.innerHTML =
-"Erro ao buscar motoristas"
+}catch(e){
+console.log(e);
+area.innerHTML="Erro ao buscar motoristas";
 }
 }
 
-// NOVA CORRIDA
-
+// CORRIDA
 async function chamarCorrida(){
 
-const origem =
-document.getElementById("origem").value
-
-const destino =
-document.getElementById("destino").value
-
-const status =
-document.getElementById("corridaStatus")
+const origem = document.getElementById("origem").value;
+const destino = document.getElementById("destino").value;
+const status = document.getElementById("corridaStatus");
 
 try{
 
-const response = await fetch(
-
-API + "/nova_corrida",
-
-{
+const response = await fetch(API + "/nova_corrida",{
 method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-passageiro_id:user.id,
-origem,
-destino,
-valor:25
-})
-}
-)
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({passageiro_id:user.id,origem,destino,valor:25})
+});
 
-const data = await response.json()
+const data = await response.json();
+console.log(data);
 
-console.log(data)
+status.innerHTML="Corrida chamada com sucesso 🚗";
 
-status.innerHTML =
-"Corrida chamada com sucesso 🚗"
-
-}catch(error){
-
-console.log(error)
-
-status.innerHTML =
-"Erro ao chamar corrida"
+}catch(e){
+console.log(e);
+status.innerHTML="Erro ao chamar corrida";
 }
 }
 
 // SOCKET
+socket.on("corrida_aceita",(data)=>{
 
-socket.on(
-"corrida_aceita",
-(data)=>{
+document.getElementById("corridaStatus").innerHTML=
+"Motorista aceitou sua corrida 🚗";
 
-const status =
-document.getElementById(
-"corridaStatus"
-)
-
-status.innerHTML =
-"Motorista aceitou sua corrida 🚗"
-
-}
-)
+});
 
 </script>
 
