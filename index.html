@@ -1,571 +1,454 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Passageiro</title>
-
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
-    <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial, Helvetica, sans-serif;
-        }
-
-        body{
-
-            background-image:
-
-            linear-gradient(
-                rgba(0,0,0,0.7),
-                rgba(0,0,0,0.7)
-            ),
-
-            url("assets/fundo.jpg");
-
-            background-size:cover;
-
-            background-position:center;
-
-            background-repeat:no-repeat;
-
-            background-attachment:fixed;
-
-            color:white;
-        }
-
-        .container{
-
-            width:100%;
-            min-height:100vh;
-
-            display:flex;
-
-            align-items:center;
-
-            justify-content:center;
-
-            padding:20px;
-        }
-
-        .card{
-
-            width:100%;
-            max-width:420px;
-
-            background:rgba(31,41,55,0.90);
-
-            backdrop-filter:blur(10px);
-
-            padding:30px;
-
-            border-radius:20px;
-
-            box-shadow:0 0 25px rgba(0,0,0,0.6);
-        }
-
-        .logo{
-
-            width:120px;
-
-            display:block;
-
-            margin:0 auto 20px;
-        }
-
-        h1{
-
-            text-align:center;
-
-            margin-bottom:25px;
-        }
-
-        input{
-
-            width:100%;
-
-            padding:15px;
-
-            margin-bottom:15px;
-
-            border:none;
-
-            border-radius:10px;
-
-            background:#374151;
-
-            color:white;
-
-            font-size:16px;
-        }
-
-        input::placeholder{
-
-            color:#d1d5db;
-        }
-
-        button{
-
-            width:100%;
-
-            padding:15px;
-
-            border:none;
-
-            border-radius:10px;
-
-            background:#10b981;
-
-            color:white;
-
-            font-size:16px;
-
-            font-weight:bold;
-
-            cursor:pointer;
-
-            transition:0.3s;
-
-            margin-bottom:10px;
-        }
-
-        button:hover{
-
-            opacity:0.9;
-
-            transform:scale(1.02);
-        }
-
-        .register{
-
-            background:#2563eb;
-        }
-
-        .status{
-
-            margin-top:20px;
-
-            text-align:center;
-
-            color:#d1d5db;
-        }
-
-        .dashboard{
-
-            display:none;
-        }
-
-        .motoristas{
-
-            background:#1f2937;
-
-            padding:15px;
-
-            border-radius:15px;
-
-            margin-top:20px;
-        }
-
-        .motorista{
-
-            padding:10px;
-
-            border-bottom:1px solid #374151;
-        }
-
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rota Brasil</title>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:
+linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),
+url('assets/fundo.jpg');
+background-size:cover;
+background-position:center;
+color:white;
+}
+
+header{
+padding:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#111827;
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+}
+
+.container{
+width:100%;
+min-height:90vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+}
+
+.card{
+width:100%;
+max-width:450px;
+background:rgba(31,41,55,0.9);
+padding:30px;
+border-radius:20px;
+backdrop-filter:blur(10px);
+}
+
+h1{
+text-align:center;
+margin-bottom:25px;
+}
+
+input{
+width:100%;
+padding:15px;
+margin-bottom:15px;
+border:none;
+border-radius:12px;
+background:#374151;
+color:white;
+}
+
+button{
+width:100%;
+padding:15px;
+border:none;
+border-radius:12px;
+background:#10b981;
+color:white;
+font-weight:bold;
+cursor:pointer;
+margin-bottom:10px;
+}
+
+.register{
+background:#2563eb;
+}
+
+.dashboard{
+display:none;
+}
+
+.motorista{
+background:#374151;
+padding:15px;
+border-radius:12px;
+margin-top:10px;
+}
+
+.status{
+text-align:center;
+margin-top:15px;
+}
+
+.mapa{
+width:100%;
+height:250px;
+background:#1f2937;
+border-radius:15px;
+margin-top:20px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+</style>
 
 </head>
-
 <body>
 
-    <div class="container">
+<header>
+<div class="logo">
+🚗 Rota Brasil
+</div>
+</header>
 
-        <!-- LOGIN -->
+<div class="container">
 
-        <div class="card" id="loginCard">
+<!-- LOGIN -->
 
-            <img
-                src="assets/logo.png"
-                class="logo"
-            >
+<div class="card" id="loginCard">
 
-            <h1>Passageiro</h1>
+<h1>Passageiro</h1>
 
-            <input
-                type="email"
-                id="email"
-                placeholder="Email"
-            >
+<input
+type="email"
+id="email"
+placeholder="Seu email"
+>
 
-            <input
-                type="password"
-                id="senha"
-                placeholder="Senha"
-            >
+<input
+type="password"
+id="senha"
+placeholder="Sua senha"
+>
 
-            <button onclick="login()">
-                Entrar
-            </button>
+<button onclick="login()">
+Entrar
+</button>
 
-            <button
-                class="register"
-                onclick="register()"
-            >
-                Criar Conta
-            </button>
+<button
+class="register"
+onclick="register()"
+>
+Criar Conta
+</button>
 
-            <p
-                class="status"
-                id="loginStatus"
-            ></p>
+<p class="status" id="loginStatus"></p>
 
-        </div>
+</div>
 
-        <!-- DASHBOARD -->
+<!-- DASHBOARD -->
 
-        <div
-            class="card dashboard"
-            id="dashboard"
-        >
+<div class="card dashboard" id="dashboard">
 
-            <img
-                src="assets/logo.png"
-                class="logo"
-            >
+<h1>Chamar Corrida</h1>
 
-            <h1>Chamar Corrida</h1>
+<input
+id="origem"
+placeholder="Origem"
+>
 
-            <input
-                type="text"
-                id="origem"
-                placeholder="Origem"
-            >
+<input
+id="destino"
+placeholder="Destino"
+>
 
-            <input
-                type="text"
-                id="destino"
-                placeholder="Destino"
-            >
+<button onclick="buscarMotoristas()">
+Procurar Motoristas
+</button>
 
-            <button onclick="verMotoristas()">
-                Ver Motoristas
-            </button>
+<div id="motoristasArea">
+Nenhum motorista online
+</div>
 
-            <div
-                class="motoristas"
-                id="motoristasArea"
-            ></div>
+<button onclick="chamarCorrida()">
+Chamar Corrida
+</button>
 
-            <button onclick="chamarCorrida()">
-                Chamar Corrida
-            </button>
+<div class="mapa">
+MAPA TEMPO REAL
+</div>
 
-            <p
-                class="status"
-                id="status"
-            ></p>
+<p class="status" id="corridaStatus"></p>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
-    <script>
+<script>
 
-        const API =
-        "https://rotabrasil-v1cf.onrender.com"
+const API =
+"https://rotabrasil-v1cf.onrender.com"
 
-        const socket = io(API)
+const socket = io(API)
 
-        let user = null
+let user = null
 
-        // =====================================
-        // REGISTER
-        // =====================================
+// REGISTER
 
-        async function register(){
+async function register(){
 
-            const email =
-            document.getElementById(
-                "email"
-            ).value
+const email =
+document.getElementById("email").value
 
-            const senha =
-            document.getElementById(
-                "senha"
-            ).value
+const senha =
+document.getElementById("senha").value
 
-            const status =
-            document.getElementById(
-                "loginStatus"
-            )
+const status =
+document.getElementById("loginStatus")
 
-            try{
+try{
 
-                const response = await fetch(
+const response = await fetch(
 
-                    API + "/register",
+API + "/register",
 
-                    {
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+nome:"Passageiro",
+email,
+senha,
+telefone:"99999",
+tipo:"passageiro"
+})
+}
+)
 
-                        method:"POST",
+const text = await response.text()
 
-                        headers:{
-                            "Content-Type":
-                            "application/json"
-                        },
+console.log(text)
 
-                        body: JSON.stringify({
+status.innerHTML =
+"Conta criada com sucesso"
 
-                            nome:"Passageiro",
+}catch(error){
 
-                            email,
+console.log(error)
 
-                            senha,
+status.innerHTML =
+"Erro cadastro"
+}
+}
 
-                            telefone:"99999",
+// LOGIN
 
-                            tipo:"passageiro"
-                        })
-                    }
-                )
+async function login(){
 
-                const text =
-                await response.text()
+const email =
+document.getElementById("email").value
 
-                console.log(text)
+const senha =
+document.getElementById("senha").value
 
-                status.innerHTML =
-                "Conta criada com sucesso"
+const status =
+document.getElementById("loginStatus")
 
-            }catch(error){
+try{
 
-                console.log(error)
+const response = await fetch(
 
-                status.innerHTML =
-                "Erro cadastro"
-            }
-        }
+API + "/login",
 
-        // =====================================
-        // LOGIN
-        // =====================================
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email,
+senha
+})
+}
+)
 
-        async function login(){
+const data = await response.json()
 
-            const email =
-            document.getElementById(
-                "email"
-            ).value
+console.log(data)
 
-            const senha =
-            document.getElementById(
-                "senha"
-            ).value
+if(data.token){
 
-            const status =
-            document.getElementById(
-                "loginStatus"
-            )
+user = data.user
 
-            try{
+localStorage.setItem(
+"token",
+data.token
+)
 
-                const response = await fetch(
+localStorage.setItem(
+"user",
+JSON.stringify(data.user)
+)
 
-                    API + "/login",
+document.getElementById(
+"loginCard"
+).style.display = "none"
 
-                    {
+document.getElementById(
+"dashboard"
+).style.display = "block"
 
-                        method:"POST",
+buscarMotoristas()
 
-                        headers:{
-                            "Content-Type":
-                            "application/json"
-                        },
+}else{
 
-                        body: JSON.stringify({
+status.innerHTML =
+data.erro || "Erro login"
+}
 
-                            email,
-                            senha
-                        })
-                    }
-                )
+}catch(error){
 
-                const data =
-                await response.json()
+console.log(error)
 
-                console.log(data)
+status.innerHTML =
+"Erro servidor"
+}
+}
 
-                if(data.token){
+// MOTORISTAS ONLINE
 
-                    user = data.user
+async function buscarMotoristas(){
 
-                    localStorage.setItem(
-                        "token",
-                        data.token
-                    )
+const area =
+document.getElementById(
+"motoristasArea"
+)
 
-                    localStorage.setItem(
-                        "user",
-                        JSON.stringify(data.user)
-                    )
+area.innerHTML =
+"Buscando motoristas..."
 
-                    document.getElementById(
-                        "loginCard"
-                    ).style.display = "none"
+try{
 
-                    document.getElementById(
-                        "dashboard"
-                    ).style.display = "block"
+const response = await fetch(
+API + "/motoristas_online"
+)
 
-                }else{
+const data = await response.json()
 
-                    status.innerHTML =
-                    data.erro || "Erro login"
-                }
+console.log(data)
 
-            }catch(error){
+area.innerHTML = ""
 
-                console.log(error)
+if(data.length === 0){
 
-                status.innerHTML =
-                "Erro servidor"
-            }
-        }
+area.innerHTML =
+"Nenhum motorista online"
 
-        // =====================================
-        // VER MOTORISTAS
-        // =====================================
+return
+}
 
-        async function verMotoristas(){
+data.forEach((motorista)=>{
 
-            const area =
-            document.getElementById(
-                "motoristasArea"
-            )
+area.innerHTML += `
 
-            area.innerHTML =
-            "Buscando motoristas..."
+<div class="motorista">
+🚗 ${motorista.nome}<br>
+Carro: ${motorista.carro || 'Não informado'}
+</div>
+`
+})
 
-            try{
+}catch(error){
 
-                const response = await fetch(
+console.log(error)
 
-                    API + "/motoristas_online"
-                )
+area.innerHTML =
+"Erro ao buscar motoristas"
+}
+}
 
-                const data =
-                await response.json()
+// NOVA CORRIDA
 
-                console.log(data)
+async function chamarCorrida(){
 
-                area.innerHTML = ""
+const origem =
+document.getElementById("origem").value
 
-                if(data.length === 0){
+const destino =
+document.getElementById("destino").value
 
-                    area.innerHTML =
-                    "Nenhum motorista online"
+const status =
+document.getElementById("corridaStatus")
 
-                    return
-                }
+try{
 
-                data.forEach((motorista)=>{
+const response = await fetch(
 
-                    area.innerHTML += `
+API + "/nova_corrida",
 
-                        <div class="motorista">
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+passageiro_id:user.id,
+origem,
+destino,
+valor:25
+})
+}
+)
 
-                            🚗 ${motorista.nome}
+const data = await response.json()
 
-                        </div>
-                    `
-                })
+console.log(data)
 
-            }catch(error){
+status.innerHTML =
+"Corrida chamada com sucesso 🚗"
 
-                console.log(error)
+}catch(error){
 
-                area.innerHTML =
-                "Erro ao buscar motoristas"
-            }
-        }
+console.log(error)
 
-        // =====================================
-        // CHAMAR CORRIDA
-        // =====================================
+status.innerHTML =
+"Erro ao chamar corrida"
+}
+}
 
-        async function chamarCorrida(){
+// SOCKET
 
-            const origem =
-            document.getElementById(
-                "origem"
-            ).value
+socket.on(
+"corrida_aceita",
+(data)=>{
 
-            const destino =
-            document.getElementById(
-                "destino"
-            ).value
+const status =
+document.getElementById(
+"corridaStatus"
+)
 
-            const status =
-            document.getElementById(
-                "status"
-            )
+status.innerHTML =
+"Motorista aceitou sua corrida 🚗"
 
-            try{
+}
+)
 
-                const response = await fetch(
-
-                    API + "/nova_corrida",
-
-                    {
-
-                        method:"POST",
-
-                        headers:{
-                            "Content-Type":
-                            "application/json"
-                        },
-
-                        body: JSON.stringify({
-
-                            passageiro_id:user.id,
-
-                            origem,
-
-                            destino,
-
-                            valor:25
-                        })
-                    }
-                )
-
-                const data =
-                await response.json()
-
-                console.log(data)
-
-                status.innerHTML =
-                "Corrida chamada com sucesso"
-
-            }catch(error){
-
-                console.log(error)
-
-                status.innerHTML =
-                "Erro ao chamar corrida"
-            }
-        }
-
-    </script>
+</script>
 
 </body>
-
 </html>
