@@ -158,17 +158,80 @@ placeholder="Senha"
 <button onclick="login()">
 Entrar
 </button>
+async function register(){
 
-<button
-class="register"
-onclick="register()"
->
-Criar Conta
-</button>
+    const nome =
+    document.getElementById(
+        "nome"
+    ).value
 
-<p class="status" id="loginStatus"></p>
+    const email =
+    document.getElementById(
+        "email"
+    ).value
 
-</div>
+    const telefone =
+    document.getElementById(
+        "telefone"
+    ).value
+
+    const senha =
+    document.getElementById(
+        "senha"
+    ).value
+
+    const status =
+    document.getElementById(
+        "loginStatus"
+    )
+
+    try{
+
+        const response = await fetch(
+
+            API + "/register",
+
+            {
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    nome,
+                    email,
+                    telefone,
+                    senha,
+                    tipo:"passageiro"
+                })
+            }
+        )
+
+        const data =
+        await response.json()
+
+        console.log(data)
+
+        status.innerHTML =
+        "Conta criada com sucesso"
+
+    }catch(error){
+
+        console.log(error)
+
+        status.innerHTML =
+        "Erro cadastro"
+    }
+}
+
+
+
+  
+
 
 <!-- DASHBOARD -->
 
