@@ -43,20 +43,25 @@
         }
 
         .container{
+
             width:100%;
             min-height:100vh;
+
             display:flex;
+
             align-items:center;
+
             justify-content:center;
+
             padding:20px;
         }
 
         .card{
 
             width:100%;
-            max-width:400px;
+            max-width:420px;
 
-            background:rgba(31,41,55,0.88);
+            background:rgba(31,41,55,0.90);
 
             backdrop-filter:blur(10px);
 
@@ -68,53 +73,112 @@
         }
 
         .logo{
+
             width:120px;
+
             display:block;
+
             margin:0 auto 20px;
         }
 
         h1{
+
             text-align:center;
+
             margin-bottom:25px;
         }
 
         input{
+
             width:100%;
+
             padding:15px;
+
             margin-bottom:15px;
+
             border:none;
+
             border-radius:10px;
+
             background:#374151;
+
             color:white;
+
             font-size:16px;
         }
 
         input::placeholder{
+
             color:#d1d5db;
         }
 
         button{
+
             width:100%;
+
             padding:15px;
+
             border:none;
+
             border-radius:10px;
+
             background:#10b981;
+
             color:white;
+
             font-size:16px;
+
             font-weight:bold;
+
             cursor:pointer;
+
             transition:0.3s;
+
+            margin-bottom:10px;
         }
 
         button:hover{
+
             opacity:0.9;
+
             transform:scale(1.02);
         }
 
+        .register{
+
+            background:#2563eb;
+        }
+
         .status{
-            text-align:center;
+
             margin-top:20px;
+
+            text-align:center;
+
             color:#d1d5db;
+        }
+
+        .dashboard{
+
+            display:none;
+        }
+
+        .motoristas{
+
+            background:#1f2937;
+
+            padding:15px;
+
+            border-radius:15px;
+
+            margin-top:20px;
+        }
+
+        .motorista{
+
+            padding:10px;
+
+            border-bottom:1px solid #374151;
         }
 
     </style>
@@ -125,7 +189,9 @@
 
     <div class="container">
 
-        <div class="card">
+        <!-- LOGIN -->
+
+        <div class="card" id="loginCard">
 
             <img
                 src="assets/logo.png"
@@ -133,6 +199,50 @@
             >
 
             <h1>Passageiro</h1>
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Email"
+            >
+
+            <input
+                type="password"
+                id="senha"
+                placeholder="Senha"
+            >
+
+            <button onclick="login()">
+                Entrar
+            </button>
+
+            <button
+                class="register"
+                onclick="register()"
+            >
+                Criar Conta
+            </button>
+
+            <p
+                class="status"
+                id="loginStatus"
+            ></p>
+
+        </div>
+
+        <!-- DASHBOARD -->
+
+        <div
+            class="card dashboard"
+            id="dashboard"
+        >
+
+            <img
+                src="assets/logo.png"
+                class="logo"
+            >
+
+            <h1>Chamar Corrida</h1>
 
             <input
                 type="text"
@@ -145,6 +255,15 @@
                 id="destino"
                 placeholder="Destino"
             >
+
+            <button onclick="verMotoristas()">
+                Ver Motoristas
+            </button>
+
+            <div
+                class="motoristas"
+                id="motoristasArea"
+            ></div>
 
             <button onclick="chamarCorrida()">
                 Chamar Corrida
@@ -165,6 +284,219 @@
         "https://rotabrasil-v1cf.onrender.com"
 
         const socket = io(API)
+
+        let user = null
+
+        // =====================================
+        // REGISTER
+        // =====================================
+
+        async function register(){
+
+            const email =
+            document.getElementById(
+                "email"
+            ).value
+
+            const senha =
+            document.getElementById(
+                "senha"
+            ).value
+
+            const status =
+            document.getElementById(
+                "loginStatus"
+            )
+
+            try{
+
+                const response = await fetch(
+
+                    API + "/register",
+
+                    {
+
+                        method:"POST",
+
+                        headers:{
+                            "Content-Type":
+                            "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            nome:"Passageiro",
+
+                            email,
+
+                            senha,
+
+                            telefone:"99999",
+
+                            tipo:"passageiro"
+                        })
+                    }
+                )
+
+                const text =
+                await response.text()
+
+                console.log(text)
+
+                status.innerHTML =
+                "Conta criada com sucesso"
+
+            }catch(error){
+
+                console.log(error)
+
+                status.innerHTML =
+                "Erro cadastro"
+            }
+        }
+
+        // =====================================
+        // LOGIN
+        // =====================================
+
+        async function login(){
+
+            const email =
+            document.getElementById(
+                "email"
+            ).value
+
+            const senha =
+            document.getElementById(
+                "senha"
+            ).value
+
+            const status =
+            document.getElementById(
+                "loginStatus"
+            )
+
+            try{
+
+                const response = await fetch(
+
+                    API + "/login",
+
+                    {
+
+                        method:"POST",
+
+                        headers:{
+                            "Content-Type":
+                            "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            email,
+                            senha
+                        })
+                    }
+                )
+
+                const data =
+                await response.json()
+
+                console.log(data)
+
+                if(data.token){
+
+                    user = data.user
+
+                    localStorage.setItem(
+                        "token",
+                        data.token
+                    )
+
+                    localStorage.setItem(
+                        "user",
+                        JSON.stringify(data.user)
+                    )
+
+                    document.getElementById(
+                        "loginCard"
+                    ).style.display = "none"
+
+                    document.getElementById(
+                        "dashboard"
+                    ).style.display = "block"
+
+                }else{
+
+                    status.innerHTML =
+                    data.erro || "Erro login"
+                }
+
+            }catch(error){
+
+                console.log(error)
+
+                status.innerHTML =
+                "Erro servidor"
+            }
+        }
+
+        // =====================================
+        // VER MOTORISTAS
+        // =====================================
+
+        async function verMotoristas(){
+
+            const area =
+            document.getElementById(
+                "motoristasArea"
+            )
+
+            area.innerHTML =
+            "Buscando motoristas..."
+
+            try{
+
+                const response = await fetch(
+
+                    API + "/motoristas_online"
+                )
+
+                const data =
+                await response.json()
+
+                console.log(data)
+
+                area.innerHTML = ""
+
+                if(data.length === 0){
+
+                    area.innerHTML =
+                    "Nenhum motorista online"
+
+                    return
+                }
+
+                data.forEach((motorista)=>{
+
+                    area.innerHTML += `
+
+                        <div class="motorista">
+
+                            🚗 ${motorista.nome}
+
+                        </div>
+                    `
+                })
+
+            }catch(error){
+
+                console.log(error)
+
+                area.innerHTML =
+                "Erro ao buscar motoristas"
+            }
+        }
 
         // =====================================
         // CHAMAR CORRIDA
@@ -204,7 +536,7 @@
 
                         body: JSON.stringify({
 
-                            passageiro_id:1,
+                            passageiro_id:user.id,
 
                             origem,
 
