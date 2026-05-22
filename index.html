@@ -292,39 +292,64 @@ corridaId = null;
 
 // SOCKET
   
-socket.on("corrida_aceita",(data)=>{
+socket.on(
+"corrida_aceita",
+(data)=>{
 
 if(data.corrida_id == corridaId){
 
-document.getElementById("corridaStatus").innerHTML = `
+document.getElementById(
+"corridaStatus"
+).innerHTML = `
 
 <div style="
 background:#111827;
-padding:15px;
+padding:20px;
 border-radius:12px;
 margin-top:15px;
 ">
 
-<img
-src="${data.foto}"
-style="
-width:80px;
-height:80px;
-border-radius:50%;
-object-fit:cover;
-margin-bottom:10px;
-"
->
+<h2 style="color:#22c55e;">
+🚗 Corrida Aceita
+</h2>
 
-<h3>${data.motorista_nome}</h3>
-
-<p>🚗 ${data.carro}</p>
-
-<p>📍 Placa: ${data.placa}</p>
-
-<p style="color:#22c55e;">
-Motorista aceitou sua corrida
+<p>
+👨 Motorista:
+${data.motorista_nome}
 </p>
+
+<p>
+🚘 Carro:
+${data.carro}
+</p>
+
+<p>
+📍 Placa:
+${data.placa}
+</p>
+
+</div>
+
+`;
+
+/*
+CRIAR MAPA
+*/
+
+document.getElementById(
+"mapaArea"
+).innerHTML = `
+
+<div id="mapaMotorista"
+style="
+margin-top:15px;
+background:#111827;
+padding:20px;
+border-radius:15px;
+min-height:150px;
+">
+
+🗺️ Aguardando localização do motorista...
 
 </div>
 
@@ -332,7 +357,8 @@ Motorista aceitou sua corrida
 
 }
 
-});
+}
+);
   socket.on(
 "localizacao_motorista",
 (data)=>{
