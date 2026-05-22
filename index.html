@@ -332,6 +332,38 @@ Motorista aceitou sua corrida
 }
 
 });
+  socket.on(
+"localizacao_motorista",
+(data)=>{
+
+document.getElementById(
+"mapaMotorista"
+).innerHTML = `
+
+<div style="
+padding:20px;
+background:#111827;
+border-radius:12px;
+margin-top:10px;
+">
+
+🚗 Motorista em tempo real
+
+<br><br>
+
+Latitude:
+${data.latitude}
+
+<br>
+
+Longitude:
+${data.longitude}
+
+</div>
+
+`;
+
+});
 
 </script>
 
