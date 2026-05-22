@@ -391,7 +391,52 @@ ${data.longitude}
 `;
 
 });
+socket.on(
+"localizacao_motorista",
+(data)=>{
 
+document.getElementById(
+"mapaMotorista"
+).innerHTML = `
+
+<div style="
+text-align:center;
+">
+
+<h3>
+🚗 Motorista em movimento
+</h3>
+
+<br>
+
+<p>
+Latitude:
+${data.latitude}
+</p>
+
+<p>
+Longitude:
+${data.longitude}
+</p>
+
+<br>
+
+<div style="
+background:#0f172a;
+padding:15px;
+border-radius:12px;
+">
+
+🗺️ GPS atualizado em tempo real
+
+</div>
+
+</div>
+
+`;
+
+}
+);
 </script>
 
 </body>
