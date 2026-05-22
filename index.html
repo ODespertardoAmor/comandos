@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
 <title>Passageiro - Rota Brasil</title>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -46,6 +49,7 @@ border-radius:10px;
 background:#111827;
 color:white;
 outline:none;
+box-sizing:border-box;
 }
 
 button{
@@ -57,6 +61,11 @@ font-weight:bold;
 cursor:pointer;
 margin-top:10px;
 transition:0.2s;
+font-size:16px;
+}
+
+button:hover{
+transform:scale(1.02);
 }
 
 .primary{
@@ -72,10 +81,6 @@ color:white;
 .danger{
 background:#ef4444;
 color:white;
-}
-
-button:hover{
-transform:scale(1.02);
 }
 
 .card h3{
@@ -112,198 +117,361 @@ margin-bottom:10px;
 <body>
 
 <header>
- Olá Passageiro RB!
-🚗 para onde vamos?
+🚗 Rota Brasil Passageiro
 </header>
 
 <div class="container">
 
 <!-- LOGIN -->
+
 <div class="card" id="loginCard">
 
 <h3>Login / Cadastro</h3>
 
 <input id="nome" placeholder="Nome">
+
 <input id="email" placeholder="Email">
-<input id="senha" placeholder="Senha">
-<input id="telefone" placeholder="Telefone">
 
-<button class="primary" onclick="register()">
+<input id="senha"
+type="password"
+placeholder="Senha">
+
+<input id="telefone"
+placeholder="Telefone">
+
+<button
+class="primary"
+onclick="register()">
+
 Criar conta
+
 </button>
 
-<button class="success" onclick="login()">
+<button
+class="success"
+onclick="login()">
+
 Entrar
+
 </button>
 
-<p id="loginStatus" class="status"></p>
+<p id="loginStatus"
+class="status"></p>
 
 </div>
 
 <!-- DASHBOARD -->
-<div class="card" id="dashboard" style="display:none">
+
+<div
+class="card"
+id="dashboard"
+style="display:none">
 
 <h3>Chamar corrida</h3>
 
-<input id="origem" placeholder="Origem">
-<input id="destino" placeholder="Destino">
+<input id="origem"
+placeholder="Origem">
 
-<button class="primary" onclick="chamarCorrida()">
+<input id="destino"
+placeholder="Destino">
+
+<button
+class="primary"
+onclick="chamarCorrida()">
+
 Procurar motorista
+
 </button>
 
-<button class="danger" onclick="cancelarCorrida()">
+<button
+class="danger"
+onclick="cancelarCorrida()">
+
 Cancelar corrida
+
 </button>
 
 <hr>
 
-<div class="badge">Motoristas online</div>
+<div class="badge">
+Motoristas online
+</div>
 
 <div id="motoristasArea">
 Nenhum motorista disponível
 </div>
 
-<p class="status" id="corridaStatus"></p>
+<p
+class="status"
+id="corridaStatus"></p>
+
+<div id="mapaArea"></div>
 
 </div>
 
 </div>
-<div id="mapaMotorista"></div>
 
 <script>
 
-const API = "https://rotabrasil-v1cf.onrender.com";
+const API =
+"https://rotabrasil-v1cf.onrender.com";
+
 const socket = io(API);
 
 let user = null;
-let corridaId = null;
-let motoristaInfo = null; 
 
-// REGISTER
+let corridaId = null;
+
+let motoristaAtual = null;
+
+let motoristaInfo = null;
+
+/* REGISTER */
+
 async function register(){
 
-await fetch(API+"/register",{
+await fetch(
+API+"/register",
+{
 method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-nome:document.getElementById("nome").value,
-email:document.getElementById("email").value,
-senha:document.getElementById("senha").value,
-telefone:document.getElementById("telefone").value,
-tipo:"passageiro"
-})
-});
 
-document.getElementById("loginStatus").innerText =
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+nome:
+document.getElementById(
+"nome"
+).value,
+
+email:
+document.getElementById(
+"email"
+).value,
+
+senha:
+document.getElementById(
+"senha"
+).value,
+
+telefone:
+document.getElementById(
+"telefone"
+).value,
+
+tipo:"passageiro"
+
+})
+
+}
+);
+
+document.getElementById(
+"loginStatus"
+).innerText =
 "Conta criada ✔";
+
 }
 
-// LOGIN
+/* LOGIN */
+
 async function login(){
 
-const res = await fetch(API+"/login",{
+const res = await fetch(
+API+"/login",
+{
 method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:email.value,
-senha:senha.value
-})
-});
 
-const data = await res.json();
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+email:
+document.getElementById(
+"email"
+).value,
+
+senha:
+document.getElementById(
+"senha"
+).value
+
+})
+
+}
+);
+
+const data =
+await res.json();
 
 if(data.token){
 
 user = data.user;
 
-localStorage.setItem("token",data.token);
-localStorage.setItem("user",JSON.stringify(user));
+localStorage.setItem(
+"token",
+data.token
+);
 
-document.getElementById("loginCard").style.display="none";
-document.getElementById("dashboard").style.display="block";
+localStorage.setItem(
+"user",
+JSON.stringify(user)
+);
+
+document.getElementById(
+"loginCard"
+).style.display = "none";
+
+document.getElementById(
+"dashboard"
+).style.display = "block";
 
 buscarMotoristas();
 
 }else{
-alert("erro login");
-}
+
+alert("Erro login");
+
 }
 
-// MOTORISTAS
+}
+
+/* MOTORISTAS */
+
 async function buscarMotoristas(){
 
-const res = await fetch(API+"/motoristas_online");
-const data = await res.json();
+const res =
+await fetch(
+API+"/motoristas_online"
+);
 
-const area = document.getElementById("motoristasArea");
+const data =
+await res.json();
+
+const area =
+document.getElementById(
+"motoristasArea"
+);
 
 area.innerHTML = "";
 
-if(data.length===0){
-area.innerHTML="Nenhum motorista online";
+if(data.length === 0){
+
+area.innerHTML =
+"Nenhum motorista online";
+
 return;
+
 }
 
-data.forEach(m=>{
+data.forEach((m)=>{
+
 area.innerHTML += `
+
 <div class="motorista">
-🚗 ${m.nome}<br>
+
+🚗 ${m.nome}
+
+<br>
+
 ${m.carro || ""}
-</div>`;
+
+</div>
+
+`;
+
 });
 
 }
 
-// CRIAR CORRIDA
+/* NOVA CORRIDA */
+
 async function chamarCorrida(){
 
-const res = await fetch(API+"/nova_corrida",{
+const res = await fetch(
+API+"/nova_corrida",
+{
 method:"POST",
-headers:{"Content-Type":"application/json"},
+
+headers:{
+"Content-Type":"application/json"
+},
+
 body:JSON.stringify({
+
 passageiro_id:user.id,
-origem:origem.value,
-destino:destino.value,
+
+origem:
+document.getElementById(
+"origem"
+).value,
+
+destino:
+document.getElementById(
+"destino"
+).value,
+
 valor:25
+
 })
-});
 
-const data = await res.json();
+}
+);
 
-corridaId = data.corrida_id;
+const data =
+await res.json();
 
-document.getElementById("corridaStatus").innerText =
+corridaId =
+data.corrida_id;
+
+document.getElementById(
+"corridaStatus"
+).innerText =
 "🚗 Procurando motorista...";
+
 }
 
-// CANCELAR
+/* CANCELAR */
+
 async function cancelarCorrida(){
 
 if(!corridaId) return;
 
-await fetch(API+"/cancelar_corrida/"+corridaId,{
+await fetch(
+API+"/cancelar_corrida/"+corridaId,
+{
 method:"POST"
-});
+}
+);
 
-document.getElementById("corridaStatus").innerText =
+document.getElementById(
+"corridaStatus"
+).innerText =
 "❌ Corrida cancelada";
 
+document.getElementById(
+"mapaArea"
+).innerHTML = "";
+
 corridaId = null;
+
 }
 
-// SOCKET
-  socket.on(
+/* CORRIDA ACEITA */
+
+socket.on(
 "corrida_aceita",
 (data)=>{
 
 if(data.corrida_id == corridaId){
 
-/* GUARDA ID */
 motoristaAtual =
 data.motorista_id;
 
-/* GUARDA INFO */
 motoristaInfo = data;
 
 document.getElementById(
@@ -320,7 +488,9 @@ margin-top:15px;
 <h2 style="
 color:#22c55e;
 ">
+
 🚗 Corrida Aceita
+
 </h2>
 
 <p>
@@ -346,7 +516,8 @@ document.getElementById(
 "mapaArea"
 ).innerHTML = `
 
-<div id="mapaMotorista"
+<div
+id="mapaMotorista"
 style="
 margin-top:15px;
 background:#111827;
@@ -363,9 +534,12 @@ min-height:150px;
 
 }
 
-});
+}
+);
 
-  socket.on(
+/* GPS MOTORISTA */
+
+socket.on(
 "localizacao_motorista",
 (data)=>{
 
@@ -446,52 +620,47 @@ GPS atualizado em tempo real
 
 }
 );
+
+/* CANCELAMENTO */
+
 socket.on(
-"localizacao_motorista",
+"corrida_cancelada",
 (data)=>{
 
+if(data.corrida_id == corridaId){
+
 document.getElementById(
-"mapaMotorista"
+"corridaStatus"
 ).innerHTML = `
 
 <div style="
+background:#111827;
+padding:20px;
+border-radius:15px;
 text-align:center;
 ">
 
-<h3>
-🚗 Motorista em movimento
-</h3>
-
-<br>
-
-<p>
-Latitude:
-${data.latitude}
-</p>
-
-<p>
-Longitude:
-${data.longitude}
-</p>
-
-<br>
-
-<div style="
-background:#0f172a;
-padding:15px;
-border-radius:12px;
+<h2 style="
+color:#ef4444;
 ">
 
-🗺️ GPS atualizado em tempo real
+❌ Corrida cancelada
 
-</div>
+</h2>
 
 </div>
 
 `;
 
+document.getElementById(
+"mapaArea"
+).innerHTML = "";
+
+}
+
 }
 );
+
 </script>
 
 </body>
