@@ -112,7 +112,8 @@ margin-bottom:10px;
 <body>
 
 <header>
-🚗 Rota Brasil Passageiro
+ Olá Passageiro RB!
+🚗 para onde vamos?
 </header>
 
 <div class="container">
@@ -177,6 +178,7 @@ const socket = io(API);
 
 let user = null;
 let corridaId = null;
+let motoristaInfo = null; 
 
 // REGISTER
 async function register(){
@@ -291,12 +293,18 @@ corridaId = null;
 }
 
 // SOCKET
-  
-socket.on(
+  socket.on(
 "corrida_aceita",
 (data)=>{
 
 if(data.corrida_id == corridaId){
+
+/* GUARDA ID */
+motoristaAtual =
+data.motorista_id;
+
+/* GUARDA INFO */
+motoristaInfo = data;
 
 document.getElementById(
 "corridaStatus"
@@ -309,7 +317,9 @@ border-radius:12px;
 margin-top:15px;
 ">
 
-<h2 style="color:#22c55e;">
+<h2 style="
+color:#22c55e;
+">
 🚗 Corrida Aceita
 </h2>
 
@@ -332,10 +342,6 @@ ${data.placa}
 
 `;
 
-/*
-CRIAR MAPA
-*/
-
 document.getElementById(
 "mapaArea"
 ).innerHTML = `
@@ -357,40 +363,89 @@ min-height:150px;
 
 }
 
-}
-);
+});
+
   socket.on(
 "localizacao_motorista",
 (data)=>{
+
+if(data.motorista_id != motoristaAtual){
+return;
+}
 
 document.getElementById(
 "mapaMotorista"
 ).innerHTML = `
 
 <div style="
-padding:20px;
 background:#111827;
-border-radius:12px;
-margin-top:10px;
+padding:20px;
+border-radius:15px;
+text-align:center;
 ">
 
-🚗 Motorista em tempo real
+<img
+src="${motoristaInfo.foto}"
+style="
+width:90px;
+height:90px;
+border-radius:50%;
+object-fit:cover;
+margin-bottom:10px;
+border:3px solid #22c55e;
+"
+>
 
-<br><br>
+<h2>
+🚗 ${motoristaInfo.motorista_nome}
+</h2>
 
+<p>
+📍 Placa:
+${motoristaInfo.placa}
+</p>
+
+<p>
+🚘 Carro:
+${motoristaInfo.carro}
+</p>
+
+<hr style="
+margin:15px 0;
+border:1px solid #374151;
+">
+
+<h3>
+🗺️ Motorista em movimento
+</h3>
+
+<p>
 Latitude:
 ${data.latitude}
+</p>
 
-<br>
-
+<p>
 Longitude:
 ${data.longitude}
+</p>
+
+<div style="
+margin-top:15px;
+background:#0f172a;
+padding:15px;
+border-radius:12px;
+">
+
+GPS atualizado em tempo real
+
+</div>
 
 </div>
 
 `;
 
-});
+}
+);
 socket.on(
 "localizacao_motorista",
 (data)=>{
