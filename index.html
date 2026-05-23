@@ -83,13 +83,9 @@ background:#ef4444;
 color:white;
 }
 
-.card h3{
-margin-top:0;
-}
-
 .status{
 text-align:center;
-margin-top:10px;
+margin-top:15px;
 font-weight:bold;
 }
 
@@ -110,6 +106,10 @@ font-size:12px;
 margin-bottom:10px;
 }
 
+#mapaMotorista{
+margin-top:15px;
+}
+
 </style>
 
 </head>
@@ -128,15 +128,21 @@ margin-bottom:10px;
 
 <h3>Login / Cadastro</h3>
 
-<input id="nome" placeholder="Nome">
+<input
+id="nome"
+placeholder="Nome">
 
-<input id="email" placeholder="Email">
+<input
+id="email"
+placeholder="Email">
 
-<input id="senha"
+<input
+id="senha"
 type="password"
 placeholder="Senha">
 
-<input id="telefone"
+<input
+id="telefone"
 placeholder="Telefone">
 
 <button
@@ -155,7 +161,8 @@ Entrar
 
 </button>
 
-<p id="loginStatus"
+<p
+id="loginStatus"
 class="status"></p>
 
 </div>
@@ -169,10 +176,12 @@ style="display:none">
 
 <h3>Chamar corrida</h3>
 
-<input id="origem"
+<input
+id="origem"
 placeholder="Origem">
 
-<input id="destino"
+<input
+id="destino"
 placeholder="Destino">
 
 <button
@@ -198,14 +207,14 @@ Motoristas online
 </div>
 
 <div id="motoristasArea">
-Nenhum motorista disponível
+Nenhum motorista online
 </div>
 
 <p
-class="status"
-id="corridaStatus"></p>
+id="corridaStatus"
+class="status"></p>
 
-<div id="mapaArea"></div>
+<div id="mapaMotorista"></div>
 
 </div>
 
@@ -324,11 +333,13 @@ JSON.stringify(user)
 
 document.getElementById(
 "loginCard"
-).style.display = "none";
+).style.display =
+"none";
 
 document.getElementById(
 "dashboard"
-).style.display = "block";
+).style.display =
+"block";
 
 buscarMotoristas();
 
@@ -388,7 +399,7 @@ ${m.carro || ""}
 
 }
 
-/* NOVA CORRIDA */
+/* CHAMAR CORRIDA */
 
 async function chamarCorrida(){
 
@@ -430,7 +441,7 @@ data.corrida_id;
 
 document.getElementById(
 "corridaStatus"
-).innerText =
+).innerHTML =
 "🚗 Procurando motorista...";
 
 }
@@ -450,11 +461,11 @@ method:"POST"
 
 document.getElementById(
 "corridaStatus"
-).innerText =
+).innerHTML =
 "❌ Corrida cancelada";
 
 document.getElementById(
-"mapaArea"
+"mapaMotorista"
 ).innerHTML = "";
 
 corridaId = null;
@@ -467,7 +478,10 @@ socket.on(
 "corrida_aceita",
 (data)=>{
 
-if(data.corrida_id == corridaId){
+console.log(
+"CORRIDA ACEITA",
+data
+);
 
 motoristaAtual =
 data.motorista_id;
@@ -481,15 +495,14 @@ document.getElementById(
 <div style="
 background:#111827;
 padding:20px;
-border-radius:12px;
-margin-top:15px;
+border-radius:15px;
 ">
 
 <h2 style="
 color:#22c55e;
 ">
 
-🚗 Corrida Aceita
+🚗 Corrida aceita
 
 </h2>
 
@@ -513,17 +526,14 @@ ${data.placa}
 `;
 
 document.getElementById(
-"mapaArea"
+"mapaMotorista"
 ).innerHTML = `
 
-<div
-id="mapaMotorista"
-style="
-margin-top:15px;
+<div style="
 background:#111827;
 padding:20px;
 border-radius:15px;
-min-height:150px;
+text-align:center;
 ">
 
 🗺️ Aguardando localização do motorista...
@@ -533,17 +543,22 @@ min-height:150px;
 `;
 
 }
-
-}
 );
 
-/* GPS MOTORISTA */
+/* GPS TEMPO REAL */
 
 socket.on(
 "localizacao_motorista",
 (data)=>{
 
-if(data.motorista_id != motoristaAtual){
+console.log(
+"GPS",
+data
+);
+
+if(
+data.motorista_id != motoristaAtual
+){
 return;
 }
 
@@ -565,8 +580,8 @@ width:90px;
 height:90px;
 border-radius:50%;
 object-fit:cover;
-margin-bottom:10px;
 border:3px solid #22c55e;
+margin-bottom:10px;
 "
 >
 
@@ -590,7 +605,7 @@ border:1px solid #374151;
 ">
 
 <h3>
-🗺️ Motorista em movimento
+🛰️ Motorista em movimento
 </h3>
 
 <p>
@@ -627,8 +642,6 @@ socket.on(
 "corrida_cancelada",
 (data)=>{
 
-if(data.corrida_id == corridaId){
-
 document.getElementById(
 "corridaStatus"
 ).innerHTML = `
@@ -653,10 +666,8 @@ color:#ef4444;
 `;
 
 document.getElementById(
-"mapaArea"
+"mapaMotorista"
 ).innerHTML = "";
-
-}
 
 }
 );
