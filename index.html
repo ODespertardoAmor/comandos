@@ -552,15 +552,9 @@ socket.on(
 (data)=>{
 
 console.log(
-"GPS",
+"GPS RECEBIDO",
 data
 );
-
-if(
-data.motorista_id != motoristaAtual
-){
-return;
-}
 
 document.getElementById(
 "mapaMotorista"
@@ -590,13 +584,11 @@ margin-bottom:10px;
 </h2>
 
 <p>
-📍 Placa:
-${motoristaInfo.placa}
+📍 ${motoristaInfo.placa}
 </p>
 
 <p>
-🚘 Carro:
-${motoristaInfo.carro}
+🚘 ${motoristaInfo.carro}
 </p>
 
 <hr style="
