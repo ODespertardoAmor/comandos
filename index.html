@@ -584,7 +584,66 @@ document.getElementById(
 
 }
 );
+async function calcularCorrida(){
 
+const origem =
+document.getElementById(
+"origem"
+).value;
+
+const destino =
+document.getElementById(
+"destino"
+).value;
+
+const API_KEY =
+"eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjBkNzdmNzYyMzU3YzQxZThhODJjMDNlMmJlOTJlMTNiIiwiaCI6Im11cm11cjY0In0=";
+
+const url =
+
+`https://api.openrouteservice.org/v2/directions/driving-car?api_key=${API_KEY}&start=${encodeURIComponent(origem)}&end=${encodeURIComponent(destino)}`;
+
+try{
+
+const res =
+await fetch(url);
+
+const data =
+await res.json();
+
+console.log(data);
+
+const metros =
+data.features[0]
+.properties.summary.distance;
+
+const km =
+metros / 1000;
+
+const valor =
+km * 2;
+
+return {
+
+km: km.toFixed(1),
+
+valor: valor.toFixed(2)
+
+};
+
+}catch(err){
+
+console.log(err);
+
+alert(
+"Erro calcular rota"
+);
+
+return null;
+
+}
+
+}
 </script>
 
 </body>
