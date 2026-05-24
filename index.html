@@ -112,13 +112,6 @@ margin-bottom:10px;
 margin-top:15px;
 }
 
-iframe{
-width:100%;
-height:300px;
-border:none;
-border-radius:15px;
-}
-
 </style>
 
 </head>
@@ -130,6 +123,8 @@ border-radius:15px;
 </header>
 
 <div class="container">
+
+<!-- LOGIN -->
 
 <div class="card" id="loginCard">
 
@@ -173,6 +168,8 @@ id="loginStatus"
 class="status"></p>
 
 </div>
+
+<!-- DASHBOARD -->
 
 <div
 class="card"
@@ -239,34 +236,28 @@ let motoristaAtual = null;
 
 let motoristaInfo = null;
 
-/* LOGIN AUTO */
+/* SOM */
 
-const userSalvo =
-localStorage.getItem("user");
+function tocarSom(){
 
-if(userSalvo){
+const audio = new Audio(
+"https://raw.githubusercontent.com/ODespertardoAmor/RotaBrasil/main/static/sounds/chamada.mp3"
+);
 
-user =
-JSON.parse(userSalvo);
-
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-document.getElementById(
-"loginCard"
-).style.display =
-"none";
-
-document.getElementById(
-"dashboard"
-).style.display =
-"block";
-
-buscarMotoristas();
+audio.play();
 
 }
-);
+
+/* VOZ */
+
+function falar(texto){
+
+const msg =
+new SpeechSynthesisUtterance(texto);
+
+msg.lang = "pt-BR";
+
+speechSynthesis.speak(msg);
 
 }
 
@@ -359,8 +350,7 @@ await res.json();
 
 if(data.token){
 
-user =
-data.user;
+user = data.user;
 
 localStorage.setItem(
 "token",
@@ -386,9 +376,7 @@ buscarMotoristas();
 
 }else{
 
-alert(
-"Erro login"
-);
+alert("Erro login");
 
 }
 
@@ -450,7 +438,7 @@ destino
 ){
 
 const API_KEY =
-"SUA_API_KEY";
+"eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjBkNzdmNzYyMzU3YzQxZThhODJjMDNlMmJlOTJlMTNiIiwiaCI6Im11cm11cjY0In0=";
 
 /* GEO */
 
@@ -462,10 +450,8 @@ const partes =
 local.split(",");
 
 return [
-
 parseFloat(partes[1]),
 parseFloat(partes[0])
-
 ];
 
 }
@@ -547,21 +533,9 @@ return null;
 
 async function chamarCorrida(){
 
-if(!navigator.geolocation){
-
-alert(
-"GPS não suportado"
-);
-
-return;
-
-}
-
 navigator.geolocation.getCurrentPosition(
 
 async(pos)=>{
-
-try{
 
 const latitude =
 pos.coords.latitude;
@@ -635,39 +609,8 @@ valor:corrida.valor
 const data =
 await res.json();
 
-console.log(
-"CORRIDA",
-data
-);
-
 corridaId =
 data.corrida_id;
-
-}catch(err){
-
-console.log(err);
-
-alert(
-"Erro chamar corrida"
-);
-
-}
-
-},
-
-(error)=>{
-
-alert(
-"Ative a localização do iPhone"
-);
-
-},
-
-{
-
-enableHighAccuracy:true,
-timeout:10000,
-maximumAge:0
 
 }
 
@@ -680,16 +623,8 @@ maximumAge:0
 async function cancelarCorrida(){
 
 if(!corridaId){
-
-alert(
-"Nenhuma corrida ativa"
-);
-
 return;
-
 }
-
-try{
 
 await fetch(
 API+"/cancelar_corrida/"+corridaId,
@@ -698,37 +633,16 @@ method:"POST"
 }
 );
 
-corridaId = null;
-
 document.getElementById(
 "corridaStatus"
-).innerHTML = `
-
-<div style="
-background:#111827;
-padding:20px;
-border-radius:15px;
-">
-
-❌ Corrida cancelada
-
-</div>
-
-`;
+).innerHTML =
+"❌ Corrida cancelada";
 
 document.getElementById(
 "mapaMotorista"
 ).innerHTML = "";
 
-}catch(err){
-
-console.log(err);
-
-alert(
-"Erro cancelar corrida"
-);
-
-}
+corridaId = null;
 
 }
 
@@ -737,6 +651,12 @@ alert(
 socket.on(
 "corrida_aceita",
 (data)=>{
+
+tocarSom();
+
+falar(
+"Motorista aceitou sua corrida"
+);
 
 motoristaAtual =
 data.motorista_id;
@@ -798,7 +718,7 @@ text-align:center;
 }
 );
 
-/* GPS MOTORISTA */
+/* GPS */
 
 socket.on(
 "localizacao_motorista",
@@ -816,6 +736,13 @@ document.getElementById(
 ).innerHTML = `
 
 <iframe
+
+style="
+width:100%;
+height:300px;
+border:none;
+border-radius:15px;
+"
 
 src="https://maps.google.com/maps?q=${data.latitude},${data.longitude}&z=15&output=embed"
 
@@ -853,8 +780,6 @@ border-radius:15px;
 document.getElementById(
 "mapaMotorista"
 ).innerHTML = "";
-
-corridaId = null;
 
 }
 );
