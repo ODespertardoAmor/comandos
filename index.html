@@ -400,12 +400,54 @@ ${m.carro || ""}
 }
 
 /* CHAMAR CORRIDA */
-
 async function chamarCorrida(){
 
-const res = await fetch(
-API+"/nova_corrida",
+const corrida =
+await calcularCorrida();
+
+if(!corrida){
+return;
+}
+
+const origem =
+document.getElementById(
+"origem"
+).value;
+
+const destino =
+document.getElementById(
+"destino"
+).value;
+
+/* MOSTRA VALOR */
+
+document.getElementById(
+"corridaStatus"
+).innerHTML = `
+
+🚗 Distância:
+${corrida.km} KM
+
+<br><br>
+
+💰 Valor estimado:
+R$ ${corrida.valor}
+
+<br><br>
+
+🔎 Procurando motorista...
+
+`;
+
+try{
+
+const res =
+await fetch(
+
+API + "/nova_corrida",
+
 {
+
 method:"POST",
 
 headers:{
@@ -416,35 +458,38 @@ body:JSON.stringify({
 
 passageiro_id:user.id,
 
-origem:
-document.getElementById(
-"origem"
-).value,
+origem,
 
-destino:
-document.getElementById(
-"destino"
-).value,
+destino,
 
-valor:25
+valor:corrida.valor
 
 })
 
 }
+
 );
 
 const data =
 await res.json();
 
+console.log(data);
+
 corridaId =
 data.corrida_id;
 
-document.getElementById(
-"corridaStatus"
-).innerHTML =
-"🚗 Procurando motorista...";
+}catch(err){
+
+console.log(err);
+
+alert(
+"Erro chamar corrida"
+);
 
 }
+
+}
+
 
 /* CANCELAR */
 
