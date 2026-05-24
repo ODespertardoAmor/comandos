@@ -289,7 +289,6 @@ valor:corrida.valor
 const data = await res.json();
 corridaId = data.corrida_id;
 
-// Envia nova corrida para o servidor distribuir
 socket.emit('nova_corrida', {
 corrida_id: corridaId,
 passageiro_id: user.id,
@@ -302,7 +301,7 @@ valor: corrida.valor
 });
 }
 
-/* ✅ CANCELAR - AGORA CERTO: CHAMA A API E O SERVIDOR QUE AVISA TODO MUNDO */
+/* ✅ CANCELAR - VERSÃO FINAL: GARANTE QUE CHEGA NO MOTORISTA */
 async function cancelarCorrida(){
 if(!corridaId){ alert("Nenhuma corrida para cancelar!"); return; }
 if(!confirm("Deseja realmente cancelar a corrida?")) return;
@@ -310,8 +309,7 @@ if(!confirm("Deseja realmente cancelar a corrida?")) return;
 try {
 const token = localStorage.getItem("token");
 
-// ✅ AQUI É O SEGREDO: Chamamos a API /cancelar_corrida
-// O SERVIDOR É QUEM VAI EMITIR O EVENTO PARA TODOS (motorista e passageiro)
+// 1. Cancela no banco de dados
 await fetch(API+"/cancelar_corrida/"+corridaId, {
 method:"POST",
 headers:{
@@ -320,12 +318,21 @@ headers:{
 }
 });
 
-// Atualiza a tela do passageiro
+// 2. ✅ EMITE O EVENTO COM O NOME EXATO QUE O MOTORISTA ESCUTA
+// Mesmo padrão do código do motorista
+socket.emit('corrida_cancelada', {
+corrida_id: corridaId,
+motivo: "Cancelado pelo passageiro",
+passageiro_nome: user.nome,
+motorista_id: motoristaAtual // <-- ENVIA O ID DO MOTORISTA PARA O SERVIDOR SABER PARA QUEM ENVIAR
+});
+
+// 3. Atualiza a tela do passageiro
 document.getElementById("corridaStatus").innerHTML = "❌ Corrida cancelada com sucesso";
 document.getElementById("mapaMotorista").innerHTML = "";
 document.getElementById("botaoCancelar").style.display = "none";
 
-// Limpa dados
+// 4. Limpa tudo
 corridaId = null;
 motoristaAtual = null;
 motoristaInfo = null;
@@ -360,10 +367,9 @@ document.getElementById("mapaMotorista").innerHTML = `
 `;
 });
 
-/* RECEBE CANCELAMENTO (SEJA DE QUEM FOR, MOTORISTA OU PASSAGEIRO) */
+/* ✅ RECEBE CANCELAMENTO (qualquer lado que cancele) */
 socket.on("corrida_cancelada", (data)=>{
-// Verifica se é a corrida atual
-if(data.corrida_id !== corridaId) return;
+if(!corridaId || data.corrida_id !== corridaId) return;
 
 tocarSom();
 falar("Corrida foi cancelada");
@@ -376,10 +382,8 @@ document.getElementById("corridaStatus").innerHTML = `
 document.getElementById("mapaMotorista").innerHTML = "";
 document.getElementById("botaoCancelar").style.display = "none";
 
-// Limpa tudo
 corridaId = null;
 motoristaAtual = null;
-motoristaInfo = null;
 });
 
 </script>
