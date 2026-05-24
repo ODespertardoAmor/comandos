@@ -644,11 +644,13 @@ document.getElementById(
 const API_KEY =
 "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjBkNzdmNzYyMzU3YzQxZThhODJjMDNlMmJlOTJlMTNiIiwiaCI6Im11cm11cjY0In0=";
 
+/* BUSCAR COORDENADAS */
+
+async function buscarCoordenadas(local){
+
 const url =
 
-`https://api.openrouteservice.org/v2/directions/driving-car?api_key=${API_KEY}&start=${encodeURIComponent(origem)}&end=${encodeURIComponent(destino)}`;
-
-try{
+`https://api.openrouteservice.org/geocode/search?api_key=${API_KEY}&text=${encodeURIComponent(local)}`;
 
 const res =
 await fetch(url);
@@ -656,10 +658,46 @@ await fetch(url);
 const data =
 await res.json();
 
-console.log(data);
+const coords =
+data.features[0].geometry.coordinates;
+
+return coords;
+
+}
+
+try{
+
+/* ORIGEM */
+
+const origemCoords =
+await buscarCoordenadas(
+origem
+);
+
+/* DESTINO */
+
+const destinoCoords =
+await buscarCoordenadas(
+destino
+);
+
+/* ROTA */
+
+const rotaUrl =
+
+`https://api.openrouteservice.org/v2/directions/driving-car?api_key=${API_KEY}&start=${origemCoords[0]},${origemCoords[1]}&end=${destinoCoords[0]},${destinoCoords[1]}`;
+
+const rotaRes =
+await fetch(rotaUrl);
+
+const rotaData =
+await rotaRes.json();
+
+console.log(rotaData);
 
 const metros =
-data.features[0]
+
+rotaData.features[0]
 .properties.summary.distance;
 
 const km =
@@ -689,6 +727,8 @@ return null;
 }
 
 }
+
+
 </script>
 
 </body>
