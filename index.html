@@ -252,8 +252,13 @@ let linhaAtual = null;
 /* =========================
    MAPA
 ========================= */
+let map = null;
 
-const map = L.map('mapa').setView(
+function iniciarMapa(){
+
+if(map) return;
+
+map = L.map('mapa').setView(
 [-23.55052,-46.633308],
 13
 );
@@ -264,6 +269,17 @@ L.tileLayer(
 attribution:'OpenStreetMap'
 }
 ).addTo(map);
+
+setTimeout(()=>{
+map.invalidateSize();
+},500);
+
+}
+const map = L.map('mapa').setView(
+[-23.55052,-46.633308],
+13
+);
+
 
 /* =========================
    DESENHAR ROTA
@@ -348,8 +364,10 @@ document.getElementById(
 "dashboard"
 ).style.display =
 "block";
+iniciarMapa(); 
 
 buscarMotoristas();
+iniciarMapa();
 
 }
 );
