@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
@@ -117,7 +119,7 @@ margin-top:15px;
 <body>
 
 <header>
-Olá passageiro seja bem-vindo ao ROTA BRASIL!
+🚗 Rota Brasil
 </header>
 
 <div class="container">
@@ -174,12 +176,13 @@ class="card"
 id="dashboard"
 style="display:none">
 
-<h3>Para onde vamos?</h3>
-
+<h3>
+Para onde vamos?
+</h3>
 
 <input
 id="destino"
-placeholder="Destino">
+placeholder="Digite o destino">
 
 <button
 class="primary"
@@ -222,7 +225,8 @@ class="status"></p>
 const API =
 "https://rotabrasil-v1cf.onrender.com";
 
-const socket = io(API);
+const socket =
+io(API);
 
 let user = null;
 
@@ -232,6 +236,31 @@ let motoristaAtual = null;
 
 let motoristaInfo = null;
 
+/* SOM */
+
+function tocarSom(){
+
+const audio = new Audio(
+"https://raw.githubusercontent.com/ODespertardoAmor/RotaBrasil/main/static/sounds/chamada.mp3"
+);
+
+audio.play();
+
+}
+
+/* VOZ */
+
+function falar(texto){
+
+const msg =
+new SpeechSynthesisUtterance(texto);
+
+msg.lang = "pt-BR";
+
+speechSynthesis.speak(msg);
+
+}
+
 /* REGISTER */
 
 async function register(){
@@ -239,6 +268,7 @@ async function register(){
 await fetch(
 API+"/register",
 {
+
 method:"POST",
 
 headers:{
@@ -272,11 +302,12 @@ tipo:"passageiro"
 })
 
 }
+
 );
 
 document.getElementById(
 "loginStatus"
-).innerText =
+).innerHTML =
 "Conta criada ✔";
 
 }
@@ -285,9 +316,11 @@ document.getElementById(
 
 async function login(){
 
-const res = await fetch(
+const res =
+await fetch(
 API+"/login",
 {
+
 method:"POST",
 
 headers:{
@@ -309,6 +342,7 @@ document.getElementById(
 })
 
 }
+
 );
 
 const data =
@@ -396,285 +430,35 @@ ${m.carro || ""}
 
 }
 
-/* CHAMAR CORRIDA */
-async function chamarCorrida(){
-
-const corrida =
-await calcularCorrida();
-
-if(!corrida){
-return;
-}
-
-navigator.geolocation.getCurrentPosition(
-
-async(pos)=>{
-
-const latitude =
-pos.coords.latitude;
-
-const longitude =
-pos.coords.longitude;
-
-/* GPS */
-
-const origem =
-`${latitude},${longitude}`;
-
-/* DESTINO */
-
-const destino =
-document.getElementById(
-"destino"
-).value;
-
 /* CALCULAR */
 
-const corrida =
-await calcularCorrida(
-origem,
-destino
-);
-
-if(!corrida){
-return;
-}
-
-document.getElementById(
-"corridaStatus"
-).innerHTML = `
-
-🚗 Distância:
-${corrida.km} KM
-
-<br><br>
-
-💰 Valor:
-R$ ${corrida.valor}
-
-`;
-
-const res =
-await fetch(
-
-API+"/nova_corrida",
-
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-passageiro_id:user.id,
-
-origem,
-
-destino,
-
-valor:corrida.valor
-
-})
-
-}
-
-);
-
-const data =
-await res.json();
-
-corridaId =
-data.corrida_id;
-
-}
-
-);
-
-
-
-console.log(data);
-
-corridaId =
-data.corrida_id;
-
-}catch(err){
-
-console.log(err);
-
-alert(
-"Erro chamar corrida"
-);
-
-}
-
-}
-
-
-/* CANCELAR */
-
-async function cancelarCorrida(){
-
-if(!corridaId) return;
-
-await fetch(
-API+"/cancelar_corrida/"+corridaId,
-{
-method:"POST"
-}
-);
-
-document.getElementById(
-"corridaStatus"
-).innerHTML =
-"❌ Corrida cancelada";
-
-document.getElementById(
-"mapaMotorista"
-).innerHTML = "";
-
-corridaId = null;
-
-}
-
-/* CORRIDA ACEITA */
-
-socket.on(
-"corrida_aceita",
-(data)=>{
-
-console.log(
-"CORRIDA ACEITA",
-data
-);
-
-motoristaAtual =
-data.motorista_id;
-
-motoristaInfo = data;
-
-document.getElementById(
-"corridaStatus"
-).innerHTML = `
-
-<div style="
-background:#111827;
-padding:20px;
-border-radius:15px;
-">
-
-<h2 style="
-color:#22c55e;
-">
-
-🚗 Corrida aceita
-
-</h2>
-
-<p>
-👨 Motorista:
-${data.motorista_nome}
-</p>
-
-<p>
-🚘 Carro:
-${data.carro}
-</p>
-
-<p>
-📍 Placa:
-${data.placa}
-</p>
-
-</div>
-
-`;
-
-document.getElementById(
-"mapaMotorista"
-).innerHTML = `
-
-<div style="
-background:#111827;
-padding:20px;
-border-radius:15px;
-text-align:center;
-">
-
-🗺️ Aguardando localização do motorista...
-
-</div>
-
-`;
-
-}
-);
-
-/* GPS TEMPO REAL */
-
-
-
-/* CANCELAMENTO */
-
-socket.on(
-"corrida_cancelada",
-(data)=>{
-
-document.getElementById(
-"corridaStatus"
-).innerHTML = `
-
-<div style="
-background:#111827;
-padding:20px;
-border-radius:15px;
-text-align:center;
-">
-
-<h2 style="
-color:#ef4444;
-">
-
-❌ Corrida cancelada
-
-</h2>
-
-</div>
-
-`;
-
-document.getElementById(
-"mapaMotorista"
-).innerHTML = "";
-
-}
-);
 async function calcularCorrida(
 origem,
-destino){
-
-const origem =
-document.getElementById(
-"origem"
-).value;
-
-const destino =
-document.getElementById(
-"destino"
-).value;
+destino
+){
 
 const API_KEY =
-"eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjBkNzdmNzYyMzU3YzQxZThhODJjMDNlMmJlOTJlMTNiIiwiaCI6Im11cm11cjY0In0=";
+"SUA_API_KEY";
 
-/* BUSCAR COORDENADAS */
+/* GEO */
 
 async function buscarCoordenadas(local){
 
+if(local.includes(",")){
+
+const partes =
+local.split(",");
+
+return [
+parseFloat(partes[1]),
+parseFloat(partes[0])
+];
+
+}
+
 const url =
 
-`https://api.openrouteservice.org/geocode/search?api_key=${API_KEY}&text=${encodeURIComponent(local)}`;
+`https://api.openrouteservice.org/geocode/search?api_key=${API_KEY}&text=${encodeURIComponent(local)}&boundary.country=BR`;
 
 const res =
 await fetch(url);
@@ -683,7 +467,8 @@ const data =
 await res.json();
 
 const coords =
-data.features[0].geometry.coordinates;
+data.features[0]
+.geometry.coordinates;
 
 return coords;
 
@@ -691,21 +476,15 @@ return coords;
 
 try{
 
-/* ORIGEM */
-
 const origemCoords =
 await buscarCoordenadas(
 origem
 );
 
-/* DESTINO */
-
 const destinoCoords =
 await buscarCoordenadas(
 destino
 );
-
-/* ROTA */
 
 const rotaUrl =
 
@@ -716,8 +495,6 @@ await fetch(rotaUrl);
 
 const rotaData =
 await rotaRes.json();
-
-console.log(rotaData);
 
 const metros =
 
@@ -752,6 +529,260 @@ return null;
 
 }
 
+/* CHAMAR */
+
+async function chamarCorrida(){
+
+navigator.geolocation.getCurrentPosition(
+
+async(pos)=>{
+
+const latitude =
+pos.coords.latitude;
+
+const longitude =
+pos.coords.longitude;
+
+const origem =
+`${latitude},${longitude}`;
+
+const destino =
+document.getElementById(
+"destino"
+).value;
+
+const corrida =
+await calcularCorrida(
+origem,
+destino
+);
+
+if(!corrida){
+return;
+}
+
+document.getElementById(
+"corridaStatus"
+).innerHTML = `
+
+🚗 Distância:
+${corrida.km} KM
+
+<br><br>
+
+💰 Valor:
+R$ ${corrida.valor}
+
+<br><br>
+
+🔎 Procurando motorista...
+
+`;
+
+const res =
+await fetch(
+API+"/nova_corrida",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+passageiro_id:user.id,
+
+origem,
+
+destino,
+
+valor:corrida.valor
+
+})
+
+}
+
+);
+
+const data =
+await res.json();
+
+corridaId =
+data.corrida_id;
+
+}
+
+);
+
+}
+
+/* CANCELAR */
+
+async function cancelarCorrida(){
+
+if(!corridaId){
+return;
+}
+
+await fetch(
+API+"/cancelar_corrida/"+corridaId,
+{
+method:"POST"
+}
+);
+
+document.getElementById(
+"corridaStatus"
+).innerHTML =
+"❌ Corrida cancelada";
+
+document.getElementById(
+"mapaMotorista"
+).innerHTML = "";
+
+corridaId = null;
+
+}
+
+/* ACEITA */
+
+socket.on(
+"corrida_aceita",
+(data)=>{
+
+tocarSom();
+
+falar(
+"Motorista aceitou sua corrida"
+);
+
+motoristaAtual =
+data.motorista_id;
+
+motoristaInfo =
+data;
+
+document.getElementById(
+"corridaStatus"
+).innerHTML = `
+
+<div style="
+background:#111827;
+padding:20px;
+border-radius:15px;
+">
+
+<h2 style="
+color:#22c55e;
+">
+
+🚗 Corrida aceita
+
+</h2>
+
+<p>
+👨 ${data.motorista_nome}
+</p>
+
+<p>
+🚘 ${data.carro}
+</p>
+
+<p>
+📍 ${data.placa}
+</p>
+
+</div>
+
+`;
+
+document.getElementById(
+"mapaMotorista"
+).innerHTML = `
+
+<div style="
+background:#111827;
+padding:20px;
+border-radius:15px;
+text-align:center;
+">
+
+🗺️ Aguardando motorista...
+
+</div>
+
+`;
+
+}
+);
+
+/* GPS */
+
+socket.on(
+"localizacao_motorista",
+(data)=>{
+
+if(
+data.motorista_id !=
+motoristaAtual
+){
+return;
+}
+
+document.getElementById(
+"mapaMotorista"
+).innerHTML = `
+
+<iframe
+
+style="
+width:100%;
+height:300px;
+border:none;
+border-radius:15px;
+"
+
+src="https://maps.google.com/maps?q=${data.latitude},${data.longitude}&z=15&output=embed"
+
+>
+
+</iframe>
+
+`;
+
+}
+);
+
+/* CANCELAMENTO */
+
+socket.on(
+"corrida_cancelada",
+(data)=>{
+
+document.getElementById(
+"corridaStatus"
+).innerHTML = `
+
+<div style="
+background:#111827;
+padding:20px;
+border-radius:15px;
+">
+
+❌ Corrida cancelada
+
+</div>
+
+`;
+
+document.getElementById(
+"mapaMotorista"
+).innerHTML = "";
+
+}
+);
 
 </script>
 
