@@ -409,17 +409,39 @@ if(!corrida){
 return;
 }
 
+navigator.geolocation.getCurrentPosition(
+
+async(pos)=>{
+
+const latitude =
+pos.coords.latitude;
+
+const longitude =
+pos.coords.longitude;
+
+/* GPS */
+
 const origem =
-document.getElementById(
-"origem"
-).value;
+`${latitude},${longitude}`;
+
+/* DESTINO */
 
 const destino =
 document.getElementById(
 "destino"
 ).value;
 
-/* MOSTRA VALOR */
+/* CALCULAR */
+
+const corrida =
+await calcularCorrida(
+origem,
+destino
+);
+
+if(!corrida){
+return;
+}
 
 document.getElementById(
 "corridaStatus"
@@ -430,21 +452,15 @@ ${corrida.km} KM
 
 <br><br>
 
-💰 Valor estimado:
+💰 Valor:
 R$ ${corrida.valor}
 
-<br><br>
-
-🔎 Procurando motorista...
-
 `;
-
-try{
 
 const res =
 await fetch(
 
-API + "/nova_corrida",
+API+"/nova_corrida",
 
 {
 
@@ -472,6 +488,15 @@ valor:corrida.valor
 
 const data =
 await res.json();
+
+corridaId =
+data.corrida_id;
+
+}
+
+);
+
+
 
 console.log(data);
 
@@ -629,7 +654,9 @@ document.getElementById(
 
 }
 );
-async function calcularCorrida(){
+async function calcularCorrida(
+origem,
+destino){
 
 const origem =
 document.getElementById(
