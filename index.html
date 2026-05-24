@@ -868,12 +868,22 @@ alert(
 ========================= */
 
 socket.on(
+   
 "corrida_aceita",
 (data)=>{
+console.log(
+"CORRIDA ACEITA",
+data
+);
 
-if(
-data.corrida_id !=
+console.log(
+"ID LOCAL",
 corridaId
+);
+   
+if(
+String(data.corrida_id) !==
+String(corridaId)
 ){
 return;
 }
