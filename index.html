@@ -138,17 +138,19 @@
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        // ✅ FALTA DEFINIR A API AQUI - ERA O PRINCIPAL ERRO
         const API = "https://rotabrasil-v1cf.onrender.com";
         
+        // ✅ CORREÇÃO CRUCIAL: Removido o transporte forçado quebrado
         const socket = io(API, {
-            transports: ["websocket"],
-            upgrade: false
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            reconnectionAttempts: Infinity
         });
         
 
         socket.on("connect", () => {
-            console.log("SOCKET CONECTADO", socket.id);
+            console.log("✅ SOCKET CONECTADO", socket.id);
         });  
 
         let user = null;
@@ -157,44 +159,34 @@
         let motoristaAtual = null;
         let linhaAtual = null;
         let map = null;
-        let marcadorMotorista = null; // Evita duplicação de ícones no mapa
+        let marcadorMotorista = null;
 
         /* =========================
            INICIALIZAR MAPA
         ========================= */
         function iniciarMapa() {
             if (map) return;
-
-            // Configura o mapa inicialmente em São Paulo, mas se ajusta à rota depois
             map = L.map('mapa').setView([-23.55052, -46.633308], 13);
-
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: 'OpenStreetMap'
             }).addTo(map);
-
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 500);
+            setTimeout(() => { map.invalidateSize(); }, 500);
         }
 
         /* =========================
-           DESENHAR ROTA NO MAPA
+           DESENHAR ROTA
         ========================= */
         async function desenharRota(lat1, lon1, lat2, lon2) {
             try {
                 const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
                 const res = await fetch(url);
                 const data = await res.json();
-
                 if (!data.routes || data.routes.length === 0) return;
 
                 const coords = data.routes[0].geometry.coordinates;
                 const pontos = coords.map(c => [c[1], c[0]]);
 
-                if (linhaAtual) {
-                    map.removeLayer(linhaAtual);
-                }
-
+                if (linhaAtual) map.removeLayer(linhaAtual);
                 linhaAtual = L.polyline(pontos, { color: '#2563eb', weight: 5 }).addTo(map);
                 map.fitBounds(linhaAtual.getBounds());
             } catch (err) {
@@ -211,10 +203,7 @@
         if (tokenSalvo && userSalvo) {
             token = tokenSalvo;
             user = JSON.parse(userSalvo);
-            
-            window.addEventListener("load", () => {
-                 liberarPainel();
-            });
+            window.addEventListener("load", liberarPainel);
         }
 
         function liberarPainel() {
@@ -225,7 +214,7 @@
         }
 
         /* =========================
-           CADASTRO (REGISTER)
+           CADASTRO
         ========================= */
         async function register() {
             try {
@@ -244,7 +233,6 @@
                 const data = await res.json();
                 if (res.ok) {
                     document.getElementById("loginStatus").innerHTML = "Conta criada! Entrando...";
-                    // Faz o login automático após cadastrar
                     login();
                 } else {
                     alert(data.erro || "Erro ao registrar");
@@ -273,10 +261,8 @@
                 if (res.ok && data.token) {
                     token = data.token;
                     user = data.user;
-
                     localStorage.setItem("token", token);
                     localStorage.setItem("user", JSON.stringify(user));
-
                     liberarPainel();
                 } else {
                     alert(data.erro || "Credenciais inválidas");
@@ -319,7 +305,6 @@
            CALCULAR ROTA E VALORES
         ========================= */
         async function calcularCorrida(origem, destino) {
-            // Chave pública genérica do OpenRouteService (pode ser substituída se expirar)
             const API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjBkNzdmNzYyMzU3YzQxZThhODJjMDNlMmJlOTJlMTNiIiwiaCI6Im11cm11cjY0In0=";
 
             async function buscarCoordenadas(local) {
@@ -345,12 +330,9 @@
 
                 const metros = rotaData.features[0].properties.summary.distance;
                 const km = metros / 1000;
-                const valor = km * 2.5; // Definido R$2,50 por KM rodado
+                const valor = km * 2.5;
 
-                return {
-                    km: km.toFixed(1),
-                    valor: valor.toFixed(2)
-                };
+                return { km: km.toFixed(1), valor: valor.toFixed(2) };
             } catch (err) {
                 console.error(err);
                 alert("Erro ao calcular a rota geográfica.");
@@ -400,17 +382,17 @@
                             "Authorization": "Bearer " + token
                         },
                         body: JSON.stringify({
-                            passageiro_id: user.id, // ✅ Adicionei o ID do passageiro
-                            origem,
-                            destino,
+                            passageiro_id: user.id,
+                            origem: origem,
+                            destino: destino,
                             valor: corrida.valor
                         })
                     });
 
                     const data = await res.json();
                     corridaId = data.corrida_id;
-                    
-                    // ✅ FALTA EMITIR O EVENTO PARA O SOCKET - ERA OUTRO ERRO
+
+                    // ✅ ENVIO GARANTIDO DA CHAMADA PARA O SERVIDOR/MOTORISTAS
                     socket.emit('nova_corrida', {
                         corrida_id: corridaId,
                         passageiro_id: user.id,
@@ -419,6 +401,8 @@
                         destino: destino,
                         valor: corrida.valor
                     });
+
+                    console.log("📤 Chamada enviada:", corridaId);
 
                 } catch (err) {
                     console.error(err);
@@ -430,7 +414,7 @@
         }
 
         /* =========================
-           CANCELAR CORRIDA ACTIVE
+           CANCELAR CORRIDA
         ========================= */
         async function cancelarCorrida() {
             if (!corridaId) {
@@ -445,6 +429,9 @@
                 });
 
                 if (res.ok) {
+                    // ✅ Avisa o servidor que cancelou
+                    socket.emit('corrida_cancelada', { corrida_id: corridaId });
+
                     document.getElementById("corridaStatus").innerHTML = `<span style="color:#ef4444">❌ Corrida cancelada.</span>`;
                     
                     if (linhaAtual) map.removeLayer(linhaAtual);
@@ -459,7 +446,7 @@
         }
 
         /* =========================
-           WS: ESCUTAR ACEITE DO MOTORISTA
+           RECEBE ACEITE
         ========================= */
         socket.on("corrida_aceita", (data) => {
             if (String(data.corrida_id) !== String(corridaId)) return;
@@ -477,12 +464,11 @@
         });
 
         /* =========================
-           WS: RASTREAR GPS DO MOTORISTA NO MAPA
+           RECEBE LOCALIZAÇÃO MOTORISTA
         ========================= */
         socket.on("localizacao_motorista", (data) => {
             if (!motoristaAtual || data.motorista_id != motoristaAtual) return;
 
-            // Se o ícone do motorista já existia, só movemos de lugar (Evita encher o mapa de clones)
             if (marcadorMotorista) {
                 marcadorMotorista.setLatLng([data.latitude, data.longitude]);
             } else {
@@ -490,12 +476,11 @@
                     .bindPopup("Seu motorista")
                     .openPopup();
             }
-
             map.setView([data.latitude, data.longitude], 16);
         });
 
         /* =========================
-           WS: ESCUTAR SE O MOTORISTA CANCELAR
+           RECEBE CANCELAMENTO
         ========================= */
         socket.on("corrida_cancelada", (data) => {
             if (data.corrida_id != corridaId) return;
