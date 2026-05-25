@@ -240,6 +240,14 @@ const API =
 
 const socket =
 io(API);
+ socket.on("connect",()=>{
+
+console.log(
+"SOCKET CONECTADO",
+socket.id
+);
+
+});  
 
 let user = null;
 
