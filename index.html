@@ -138,8 +138,11 @@
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        const API = "https://rotabrasil-v1cf.onrender.com";
-        const socket = io(API);
+        const socket = io("https://rotabrasil-v1cf.onrender.com", {
+    transports: ["websocket"],
+    upgrade: false
+});
+        
 
         socket.on("connect", () => {
             console.log("SOCKET CONECTADO", socket.id);
