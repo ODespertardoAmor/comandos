@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 👇 FORÇA NAVEGADOR A USAR VERSÃO NOVA 👇 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <title>🛣️ Passageiro | Rota Brasil</title>
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-    <!-- ✅ ÍCONES IGUAIS AO MOTORISTA (FONT AWESOME) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- 📍 API DE GEOLOCALIZAÇÃO E MAPAS -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7s8dR0v8W6lK-7HkRzD9xQyFgJcVbNtM&libraries=places"></script>
+    <!-- ✅ ADICIONEI ?v=2 AQUI COMO VOCÊ PEDIU PRINCESA 💖👇 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css?v=2">
+    <!-- ✅ TAMBÉM ADICIONEI NOS SCRIPTS PRA GARANTIR 🛡️🔄👇 -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js?v=2"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7s8dR0v8W6lK-7HkRzD9xQyFgJcVbNtM&libraries=places&v=2"></script>
+
     <style>
         /* ==========================================
            🎨 CORES IGUAIS AO MOTORISTA (IDENTIDADE 100%)
+           ✅ ESSE CSS AGORA É FORÇADO COMO NOVO TAMBÉM
         ========================================== */
         :root {
             --cor-primaria: #165DFF;        /* Azul Principal */
@@ -40,8 +47,8 @@
         }
 
         body {
-            background-color: var(--cor-fundo);
-            color: var(--cor-texto);
+            background-color: var(--cor-fundo) !important;
+            color: var(--cor-texto) !important;
             line-height: 1.6;
             padding-bottom: 40px;
         }
@@ -110,12 +117,12 @@
            🧩 CARDS (ESTILO PREMIUM)
         ========================================== */
         .card {
-            background-color: var(--cor-card);
+            background-color: var(--cor-card) !important;
             border-radius: var(--borda-radius);
             padding: 24px;
             margin-bottom: 18px;
             box-shadow: var(--sombra);
-            border: 1px solid var(--cor-borda);
+            border: 1px solid var(--cor-borda) !important;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -163,10 +170,10 @@
         input {
             width: 100%;
             padding: 16px 18px 16px 48px;
-            border: 1.5px solid var(--cor-borda);
+            border: 1.5px solid var(--cor-borda) !important;
             border-radius: var(--borda-radius-pq);
-            background-color: var(--cor-input);
-            color: var(--cor-texto);
+            background-color: var(--cor-input) !important;
+            color: var(--cor-texto) !important;
             font-size: 15px;
             outline: none;
             transition: all 0.3s ease;
@@ -174,9 +181,9 @@
         }
 
         input:focus {
-            border-color: var(--cor-primaria);
+            border-color: var(--cor-primaria) !important;
             box-shadow: 0 0 0 4px rgba(22, 93, 255, 0.15);
-            background-color: #2E3642;
+            background-color: #2E3642 !important;
         }
 
         input::placeholder {
@@ -256,8 +263,8 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--cor-primaria), #0052E0);
-            color: white;
+            background: linear-gradient(135deg, var(--cor-primaria), #0052E0) !important;
+            color: white !important;
             box-shadow: 0 4px 16px rgba(22, 93, 255, 0.35);
         }
         .btn-primary:hover {
@@ -266,20 +273,20 @@
         }
 
         .btn-success {
-            background: linear-gradient(135deg, var(--cor-sucesso), #009A29);
-            color: white;
+            background: linear-gradient(135deg, var(--cor-sucesso), #009A29) !important;
+            color: white !important;
             box-shadow: 0 4px 16px rgba(0, 180, 42, 0.35);
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, var(--cor-perigo), #D21C1C);
-            color: white;
+            background: linear-gradient(135deg, var(--cor-perigo), #D21C1C) !important;
+            color: white !important;
             box-shadow: 0 4px 16px rgba(245, 63, 63, 0.35);
         }
 
         .btn-warning {
-            background: linear-gradient(135deg, var(--cor-aviso), #D65E00);
-            color: white;
+            background: linear-gradient(135deg, var(--cor-aviso), #D65E00) !important;
+            color: white !important;
             box-shadow: 0 4px 16px rgba(255, 125, 0, 0.35);
         }
 
@@ -299,8 +306,8 @@
            💳 VALOR E RESUMO DA CORRIDA (DESTAQUE)
         ========================================== */
         .valor-card {
-            background: linear-gradient(145deg, #1E293B, #1A202C);
-            border: 2px solid var(--cor-primaria);
+            background: linear-gradient(145deg, #1E293B, #1A202C) !important;
+            border: 2px solid var(--cor-primaria) !important;
             text-align: center;
             padding: 20px;
         }
@@ -473,9 +480,9 @@
     <div class="header-logo">
         <div class="logo-container">
             <!-- 👇👇👇 COLOQUE A MESMA LOGO AQUI PRINCESA (IGUAL NO MOTORISTA) 👇👇👇 -->
-            <!-- <img src="https://SEU_LINK_DA_LOGO_AQUI.png" alt="Sua Marca"> -->
+            <!-- <img src="https://SEU_LINK_DA_LOGO_AQUI.png?v=2" alt="Sua Marca"> -->
             <span class="logo-texto">🛣️ ROTA BRASIL</span> 
-            <!-- 👆 Se tiver imagem, APAGA essa linha e COLA o <img> -->
+            <!-- 👆 Se tiver imagem, APAGA essa linha e COLA o <img> (não esquece o ?v=2 na imagem tbm rs 🥰) -->
         </div>
         <div class="sub-header">Painel do Passageiro • Sua viagem, nossa prioridade</div>
     </div>
@@ -621,9 +628,9 @@
         }
 
         function tocarSom(tipo='normal') {
-            let url = 'https://assets.mixkit.co/sfx/preview/mixkit-software-interface-notification-2576.mp3';
-            if(tipo === 'sucesso') url = 'https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3';
-            if(tipo === 'alerta') url = 'https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3';
+            let url = 'https://assets.mixkit.co/sfx/preview/mixkit-software-interface-notification-2576.mp3?v=2';
+            if(tipo === 'sucesso') url = 'https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3?v=2';
+            if(tipo === 'alerta') url = 'https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3?v=2';
             new Audio(url).play().catch(e=>{});
         }
 
@@ -942,7 +949,7 @@
                 markerMotorista = new google.maps.Marker({
                     position: pos,
                     map: mapa,
-                    icon: { url: 'https://cdn-icons-png.flaticon.com/512/2979/2979992.png', scaledSize: new google.maps.Size(45,45) }
+                    icon: { url: 'https://cdn-icons-png.flaticon.com/512/2979/2979992.png?v=2', scaledSize: new google.maps.Size(45,45) }
                 });
             } else {
                 markerMotorista.setPosition(pos);
