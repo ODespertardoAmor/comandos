@@ -140,7 +140,7 @@
     <script>
         const API = "https://rotabrasil-v1cf.onrender.com";
         
-        // ✅ CORREÇÃO CRUCIAL: Removido o transporte forçado quebrado
+        // ✅ Conexão correta que funciona no Render
         const socket = io(API, {
             reconnection: true,
             reconnectionDelay: 1000,
@@ -382,7 +382,6 @@
                             "Authorization": "Bearer " + token
                         },
                         body: JSON.stringify({
-                            passageiro_id: user.id,
                             origem: origem,
                             destino: destino,
                             valor: corrida.valor
@@ -392,17 +391,8 @@
                     const data = await res.json();
                     corridaId = data.corrida_id;
 
-                    // ✅ ENVIO GARANTIDO DA CHAMADA PARA O SERVIDOR/MOTORISTAS
-                    socket.emit('nova_corrida', {
-                        corrida_id: corridaId,
-                        passageiro_id: user.id,
-                        passageiro_nome: user.nome,
-                        origem: origem,
-                        destino: destino,
-                        valor: corrida.valor
-                    });
-
-                    console.log("📤 Chamada enviada:", corridaId);
+                    // ✅ REMOVI O SOCKET.EMIT DAQUI! AGORA O BACKEND QUE ENVIA
+                    console.log("📤 Pedido enviado ao servidor, aguardando motorista...");
 
                 } catch (err) {
                     console.error(err);
@@ -429,9 +419,6 @@
                 });
 
                 if (res.ok) {
-                    // ✅ Avisa o servidor que cancelou
-                    socket.emit('corrida_cancelada', { corrida_id: corridaId });
-
                     document.getElementById("corridaStatus").innerHTML = `<span style="color:#ef4444">❌ Corrida cancelada.</span>`;
                     
                     if (linhaAtual) map.removeLayer(linhaAtual);
