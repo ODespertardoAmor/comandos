@@ -141,12 +141,15 @@
         const API = "https://rotabrasil-v1cf.onrender.com";
         
         // ✅ Conexão correta que funciona no Render
-        const socket = io(API, {
-            reconnection: true,
-            reconnectionDelay: 1000,
-            reconnectionDelayMax: 5000,
-            reconnectionAttempts: Infinity
-        });
+        // ❌ APAGA ESSA LINHA: const socket = io(API, { ... });
+
+// ✅ COLOCA ESSA NO LUGAR:
+const socket = io(API, {
+    transports: ['websocket', 'polling'],
+    upgrade: true,
+    reconnection: true
+});
+
         
 
         socket.on("connect", () => {
