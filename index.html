@@ -138,10 +138,13 @@
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        const socket = io("https://rotabrasil-v1cf.onrender.com", {
-    transports: ["websocket"],
-    upgrade: false
-});
+        // ✅ FALTA DEFINIR A API AQUI - ERA O PRINCIPAL ERRO
+        const API = "https://rotabrasil-v1cf.onrender.com";
+        
+        const socket = io(API, {
+            transports: ["websocket"],
+            upgrade: false
+        });
         
 
         socket.on("connect", () => {
@@ -397,6 +400,7 @@
                             "Authorization": "Bearer " + token
                         },
                         body: JSON.stringify({
+                            passageiro_id: user.id, // ✅ Adicionei o ID do passageiro
                             origem,
                             destino,
                             valor: corrida.valor
@@ -405,6 +409,16 @@
 
                     const data = await res.json();
                     corridaId = data.corrida_id;
+                    
+                    // ✅ FALTA EMITIR O EVENTO PARA O SOCKET - ERA OUTRO ERRO
+                    socket.emit('nova_corrida', {
+                        corrida_id: corridaId,
+                        passageiro_id: user.id,
+                        passageiro_nome: user.nome,
+                        origem: origem,
+                        destino: destino,
+                        valor: corrida.valor
+                    });
 
                 } catch (err) {
                     console.error(err);
