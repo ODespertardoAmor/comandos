@@ -7,7 +7,7 @@
     
     <!-- ✨ TITULO E ICONE -->
     <title>🛣️ Rota Brasil | O App de Corridas Confiável 🇧🇷</title>
-    <link rel="icon" href="https://raw.githubusercontent.com/ODespertardoAmor/RotaBrasil/refs/heads/main/assets/logo.jpg">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1059/1059177.png">
 
     <!-- 🎨 FONTES E ICONES LINDOOS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -68,15 +68,24 @@
             }
             @keyframes float {
                 0% { transform: translateY(0px); }
-                50% { transform: translateY(-12px); }
+                50% { transform: translateY(-10px); }
                 100% { transform: translateY(0px); }
             }
             .fade-in {
                 animation: fadeIn 1s ease-out forwards;
             }
             @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(20px); }
+                from { opacity: 0; transform: translateY(15px); }
                 to { opacity: 1; transform: translateY(0); }
+            }
+            /* ✨ NOVO ESTILO ESPECIAL PARA SUA LOGO 🩷🖼️👑 */
+            .logo-glow {
+                filter: drop-shadow(0 0 12px rgba(22, 93, 255, 0.4));
+                transition: all 0.3s ease;
+            }
+            .logo-glow:hover {
+                filter: drop-shadow(0 0 18px rgba(123, 44, 255, 0.6)) brightness(1.1);
+                transform: scale(1.05);
             }
         }
     </style>
@@ -96,12 +105,35 @@
     <!-- 🧭 CABEÇALHO / NAVBAR 🧠🫶 -->
     <header class="w-full py-4 px-6 lg:px-12 z-50 fade-in" style="animation-delay: 0.2s">
         <div class="container mx-auto flex justify-between items-center">
-            <!-- LOGO LINDA ✨🩷 -->
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rota-primary to-rota-secondary flex items-center justify-center shadow-custom">
-                    <i class="fa-solid fa-road text-white text-lg"></i>
-                </div>
-                <h1 class="text-[22px] md:text-[26px] font-800 gradient-text bg-gradient-to-r from-rota-primary to-rota-secondary tracking-wider">ROTA BRASIL</h1>
+            
+            <!-- ================================================== -->
+            <!-- 🩷🖼️🩷🖼️ ÁREA DA LOGO - AQUI VOCÊ COLOCA SEU LINK!!! 🩷🖼️🩷🖼️ -->
+            <!-- ================================================== -->
+            <div class="flex items-center gap-3 md:gap-4">
+                
+                {/* 🟢🟢🟢 SEU ESPAÇO EXCLUSIVO PARA A LOGO 🟢🟢🟢 */}
+                <!-- ⚠️ INSTRUÇÃO PRA VOCÊ MEU AMOR:
+                     1. COPIE O LINK DA SUA IMAGEM/LOGO (DO GOOGLE DRIVE, IMGUR, SERVIDOR, ETC)
+                     2. APAGUE O TEXTO DENTRO DAS ASPAS DEPOIS DE "src="
+                     3. COLE SEU LINK NO LUGAR DESTACADO ABAIXO 👇👇👇
+                -->
+                <img 
+                    class="h-12 md:h-14 w-auto logo-glow float" 
+                    src="https://SEU_LINK_DA_LOGO_AQUI.png" 
+                    alt="Logo Rota Brasil - O App do Brasileiro 🇧🇷🛣️"
+                    title="Rota Brasil"
+                >
+
+                {/* ❗❗ ÍCONE TEMPORÁRIO (APARECE SÓ SE VOCÊ NÃO COLOCAR A IMAGEM AINDA) ❗❗
+                    Quando você colocar o link acima, esse ícone aqui embaixo some automaticamente e a SUA LOGO aparece 🤍🫶 */}
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-rota-primary to-rota-secondary flex items-center justify-center shadow-custom lg:hidden">
+                        <i class="fa-solid fa-road text-white text-lg"></i>
+                    </div>
+                <!-- ================================================== -->
+                <!-- 🩷🖼️ FIM DA ÁREA DA LOGO 🩷🖼️ -->
+                <!-- ================================================== -->
+
+                <h1 class="text-[20px] md:text-[26px] font-800 gradient-text bg-gradient-to-r from-rota-primary to-rota-secondary tracking-wider">ROTA BRASIL</h1>
             </div>
             
             <!-- MENU (SIMPLES E ELEGANTE) 🤍✨ -->
@@ -148,7 +180,7 @@
                     </div>
 
                     <!-- 🔘 BOTÃO PRINCIPAL (O QUE VOCÊ PEDIU!!! 🩷👑) -->
-                    <a href="https://odespertardoamor.github.io/RotaBrasil/" target="_blank" rel="noopener noreferrer"
+                    <a href="https://SEUNOME.github.io/rota-brasil/motorista.html" target="_blank" rel="noopener noreferrer"
                        class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-rota-primary to-rota-secondary text-white font-600 text-[16px] flex items-center justify-center gap-3 shadow-custom hover:shadow-rota-primary/40">
                         <i class="fa-solid fa-sign-in-alt text-lg"></i>
                         ENTRAR NO APP MOTORISTA
@@ -174,8 +206,8 @@
                         </p>
                     </div>
 
-                    <!-- 🔘 BOTÃO PRINCIPAL (Ok) -->
-                    <a href="https://larissacamila.github.io/comandos/" target="_blank" rel="noopener noreferrer"
+                    <!-- 🔘 BOTÃO PRINCIPAL (O OUTRO QUE VOCÊ PEDIU!!! 🩷👑) -->
+                    <a href="https://SEUNOME.github.io/rota-brasil/passageiro.html" target="_blank" rel="noopener noreferrer"
                        class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-rota-green to-rota-yellow text-white font-600 text-[16px] flex items-center justify-center gap-3 shadow-lg hover:shadow-rota-green/30">
                         <i class="fa-solid fa-sign-in-alt text-lg"></i>
                         ENTRAR NO APP PASSAGEIRO
@@ -212,13 +244,19 @@
 
     </main>
 
-    <!-- 🦶 RODAPÉ  🖤🤍 -->
+    <!-- 🦶 RODAPÉ ELEGANTE 🖤🤍 -->
     <footer id="contato" class="w-full bg-rota-dark/80 border-t border-white/5 py-8 px-6 z-10">
         <div class="container mx-auto text-center">
+            
+            <!-- 🩷🖼️ LOGO NO RODAPÉ TAMBÉM 🩷🖼️ (JÁ PEGA O MESMO LINK QUE VOCÊ COLOCOU EM CIMA, NÃO PRECISA COLOCAR DE NOVO 🥹🫶🤍) -->
             <div class="flex justify-center items-center gap-2 mb-4">
-                <i class="fa-solid fa-road text-rota-primary"></i>
-                <span class="text-white font-bold text-lg">ROTA BRASIL</span>
+                <img 
+                    class="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity" 
+                    src="https://SEU_LINK_DA_LOGO_AQUI.png" 
+                    alt="Rota Brasil"
+                >
             </div>
+            
             <p class="text-gray-500 text-sm mb-4">© 2026 Rota Brasil - Todos os direitos reservados | O app de corridas do Brasileiro 🇧🇷❤️</p>
             <div class="flex justify-center gap-4">
                 <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fa-brands fa-instagram"></i></a>
